@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Luo tunnus</h1>
+<form method="post" class="auth-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Käyttäjätunnus
+    <input type="text" name="username" required autofocus>
+  </label>
+  <label>Salasana
+    <input type="password" name="password" required>
+  </label>
+  <label>Salasana uudelleen
+    <input type="password" name="password2" required>
+  </label>
+  <button type="submit">Luo tunnus</button>
+</form>
+<p>Onko sinulla jo tunnus? <a href="{{ url_for('login') }}">Kirjaudu sisään</a></p>
+{% endblock %}
