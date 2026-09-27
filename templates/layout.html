@@ -1,28 +1,40 @@
 <!doctype html>
-<html lang="en">
+<html lang="fi">
 <head>
-  <meta charset="utf-8">
-  <title>Billiards Forum</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Biljardiyhteisö{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <nav>
-    <a href="/"><b>Billiards Forum</b></a>
-    <a href="/search">Search</a>
-    {% if session.get("user_id") %}
-      <a href="/new_post">New post</a>
-      <a href="/user/{{ session['user_id'] }}">{{ session["username"] }}</a>
-      <a href="/logout">Log out</a>
-    {% else %}
-      <a href="/login">Log in</a>
-      <a href="/register">Sign up</a>
-    {% endif %}
-  </nav>
-  <main>
-    {% for msg in get_flashed_messages() %}
-      <p class="flash">{{ msg }}</p>
-    {% endfor %}
-    {% block content %}{% endblock %}
-  </main>
+    <div class="site-wrapper">
+        <aside class="sidebar">
+            <a class="site-title" href="/">
+                Biljardiyhteisö
+            </a>
+
+            <nav class="navigation">
+                <a href="/">Etusivu</a>
+                <a href="/search">Hae kirjoituksia</a>
+
+                {% if session.get("user_id") %}
+                    <a href="/new_post">Uusi kirjoitus</a>
+                    <a href="/user/{{ session['user_id'] }}">Oma profiili</a>
+                    <a href="/logout">Kirjaudu ulos</a>
+                {% else %}
+                    <a href="/login">Kirjaudu sisään</a>
+                    <a href="/register">Luo tunnus</a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <main class="content">
+            {% for message in get_flashed_messages() %}
+                <p class="flash">{{ message }}</p>
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 </body>
 </html>

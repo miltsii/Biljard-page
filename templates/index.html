@@ -1,31 +1,44 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Kirjautuminen</title>
-</head>
+{% block title %}Etusivu – Biljardiyhteisö{% endblock %}
 
-<body>
-  {% if session.username %}
-  <p>
-    Olet kirjautunut nimellä {{ session.username }}
-  </p>
-  <p>
-    <a href="/logout">Kirjaudu ulos</a>
-  </p>
-  {% else %}
-  <form action="/login" method="post">
+{% block content %}
+<h1>Biljardiyhteisö</h1>
+
+<p>
+    Keskustele biljardista, jaa kokemuksia ja löydä pelikavereita.
+</p>
+
+{% if session.get("user_id") %}
     <p>
-      Tunnus: <br />
-      <input type="text" name="username" />
+        <a href="/new_post">Kirjoita uusi julkaisu</a>
     </p>
-    <p>
-      Salasana: <br />
-      <input type="password" name="password" />
-    </p>
-    <input type="submit" value="Kirjaudu" />
-  </form>
-  {% endif %}
-</body>
+{% endif %}
 
-</html>
+<h2>Viimeisimmät kirjoitukset</h2>
+
+{% for post in posts %}
+    <article class="post">
+        <h2>
+            <a href="/post/{{ post['id'] }}">
+                {{ post['title'] }}
+            </a>
+        </h2>
+
+        <p class="meta">
+            Kirjoittaja
+            <a href="/user/{{ post['user_id'] }}">
+                {{ post['username'] }}
+            </a>
+            {% if post['category'] %}
+                · {{ post['category'] }}
+            {% endif %}
+            · {{ post['created_at'] }}
+        </p>
+
+        <p>{{ post['content'] }}</p>
+    </article>
+{% else %}
+    <p>Kirjoituksia ei ole vielä lisätty.</p>
+{% endfor %}
+{% endblock %}
