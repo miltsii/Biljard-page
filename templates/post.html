@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="post">
+  <h1>{{ post['title'] }}</h1>
+  <p class="meta">
+    by <a href="/user/{{ post['user_id'] }}">{{ post['username'] }}</a>
+    {% if post['category'] %}in {{ post['category'] }}{% endif %}
+    - {{ post['created_at'] }}
+  </p>
+  <p>{{ post['content'] }}</p>
+</div>
+
+<h2>Comments</h2>
+{% for comment in comments %}
+  <div class="comment">
+    <p class="meta">
+      <a href="/user/{{ comment['user_id'] }}">{{ comment['username'] }}</a>
+      - {{ comment['created_at'] }}
+    </p>
+    <p>{{ comment['content'] }}</p>
+  </div>
+{% else %}
+  <p>Ei kommenteja.</p>
+{% endfor %}
+{% endblock %}

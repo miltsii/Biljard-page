@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>New post</h1>
+<form method="post" class="auth-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Title
+    <input type="text" name="title" required>
+  </label>
+  <label>Category
+    <select name="category_id">
+      <option value="">-- no category --</option>
+      {% for c in categories %}
+        <option value="{{ c['id'] }}">{{ c['name'] }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Content
+    <textarea name="content" rows="8" required></textarea>
+  </label>
+  <button type="submit">Publish</button>
+</form>
+{% endblock %}
