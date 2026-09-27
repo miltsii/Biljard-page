@@ -146,3 +146,46 @@ def add_comment(post_id):
     con.commit()
     con.close()
     return redirect("/post/" + str(post_id))
+
+@app.route("/post/<int:post_id>/edit", methods=["GET", "POST"])
+def edit_post(post_id):
+    if not session.get("user_id"):
+        return redirect("/login")
+    con = db.get_connection()
+    post = con.execute("SELECT * FROM posts WHERE id = ?", [post_id]).fetchone()
+    if post is None:
+        abort(404)
+    if post["user_id"] != session["user_id"]:
+        abort(403)
+    if request.method == "POST":
+        if request.form["csrf_token"] != session["csrf_token"]:
+            abort(403)
+        con.execute("UPDATE posts SET title = ?, content = ?, category_id = ? WHERE id = ?",
+                    [request.form["title"], request.form["content"],
+                     request.form.get("category_id") or None, post_id])
+        con.commit()
+        con.close()
+        flash("Post updated!")
+        return redirect("/post/" + str(post_id))
+    categories = con.execute("SELECT * FROM categories ORDER BY name").fetchall()
+    con.close()
+    return render_template("edit_post.html", post=post, categories=categories)
+
+@app.route("/post/<int:post_id>/delete", methods=["POST"])
+def delete_post(post_id):
+    if not session.get("user_id"):
+        return redirect("/login")
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
+    con = db.get_connection()
+    post = con.execute("SELECT * FROM posts WHERE id = ?", [post_id]).fetchone()
+    if post is None:
+        abort(404)
+    if post["user_id"] != session["user_id"]:
+        abort(403)
+    con.execute("DELETE FROM comments WHERE post_id = ?", [post_id])
+    con.execute("DELETE FROM posts WHERE id = ?", [post_id])
+    con.commit()
+    con.close()
+    flash("Post removed")
+    return redirect("/")
