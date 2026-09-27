@@ -32,5 +32,11 @@
   </form>
 {% else %}
   <p><a href="/login">Log in</a> to comment.</p>
+  {% if session.get("user_id") == post['user_id'] %}
+    <p><a href="/post/{{ post['id'] }}/edit">Edit</a></p>
+    <form method="post" action="/post/{{ post['id'] }}/delete">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit">Remove post</button>
+    </form>
 {% endif %}
 {% endblock %}

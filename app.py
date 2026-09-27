@@ -189,3 +189,23 @@ def delete_post(post_id):
     con.close()
     flash("Post removed")
     return redirect("/")
+@app.route("/search")
+def search():
+    q = request.args.get("q", "")
+    category_id = request.args.get("category_id", "")
+    con = db.get_connection()
+    categories = con.execute("SELECT * FROM categories ORDER BY name").fetchall()
+    sql = """SELECT posts.*, users.username, categories.name AS category
+             FROM posts
+             JOIN users ON posts.user_id = users.id
+             LEFT JOIN categories ON posts.category_id = categories.id
+             WHERE (posts.title LIKE ? OR posts.content LIKE ?)"""
+    params = ["%" + q + "%", "%" + q + "%"]
+    if category_id:
+        sql += " AND posts.category_id = ?"
+        params.append(category_id)
+    sql += " ORDER BY posts.created_at DESC"
+    posts = con.execute(sql, params).fetchall()
+    con.close()
+    return render_template("search.html", posts=posts, q=q,
+                           categories=categories, selected=category_id)
