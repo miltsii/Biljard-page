@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Latest posts</h1>
+{% for post in posts %}
+  <div class="post">
+    <h2><a href="/post/{{ post['id'] }}">{{ post['title'] }}</a></h2>
+    <p class="meta">
+      by <a href="/user/{{ post['user_id'] }}">{{ post['username'] }}</a>
+      {% if post['category'] %}in {{ post['category'] }}{% endif %}
+      - {{ post['created_at'] }}
+    </p>
+  </div>
+{% else %}
+  <p>Ei postauksia vielä!</p>
+{% endfor %}
+{% endblock %}

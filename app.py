@@ -79,3 +79,54 @@ def login():
 def logout():
     session.clear()
     return redirect("/")
+
+@app.route("/")
+def index():
+    con = db.get_connection()
+    posts = con.execute("""SELECT posts.*, users.username, categories.name AS category
+                           FROM posts
+                           JOIN users ON posts.user_id = users.id
+                           LEFT JOIN categories ON posts.category_id = categories.id
+                           ORDER BY posts.created_at DESC""").fetchall()
+    con.close()
+    return render_template("index.html", posts=posts)
+
+@app.route("/new_post", methods=["GET", "POST"])
+def new_post():
+    if not session.get("user_id"):
+        flash("Please log in first")
+        return redirect("/login")
+    con = db.get_connection()
+    if request.method == "POST":
+        if request.form["csrf_token"] != session["csrf_token"]:
+            abort(403)
+        title = request.form["title"]
+        content = request.form["content"]
+        category_id = request.form.get("category_id") or None
+        con.execute("INSERT INTO posts (title, content, user_id, category_id) VALUES (?, ?, ?, ?)",
+                    [title, content, session["user_id"], category_id])
+        con.commit()
+        con.close()
+        flash("Post created!")
+        return redirect("/")
+    categories = con.execute("SELECT * FROM categories ORDER BY name").fetchall()
+    con.close()
+    return render_template("new_post.html", categories=categories)
+
+@app.route("/post/<int:post_id>")
+def show_post(post_id):
+    con = db.get_connection()
+    post = con.execute("""SELECT posts.*, users.username, categories.name AS category
+                          FROM posts
+                          JOIN users ON posts.user_id = users.id
+                          LEFT JOIN categories ON posts.category_id = categories.id
+                          WHERE posts.id = ?""", [post_id]).fetchone()
+    if post is None:
+        abort(404)
+    comments = con.execute("""SELECT comments.*, users.username FROM comments
+                              JOIN users ON comments.user_id = users.id
+                              WHERE comments.post_id = ?
+                              ORDER BY comments.created_at""", [post_id]).fetchall()
+    con.close()
+    return render_template("post.html", post=post, comments=comments)
+
