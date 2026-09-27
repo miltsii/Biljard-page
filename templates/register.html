@@ -1,18 +1,26 @@
-{% extends "layout.html" %}
-{% block content %}
-<h1>Luo tunnus</h1>
-<form method="post" class="auth-form">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-  <label>Käyttäjätunnus
-    <input type="text" name="username" required autofocus>
-  </label>
-  <label>Salasana
-    <input type="password" name="password" required>
-  </label>
-  <label>Salasana uudelleen
-    <input type="password" name="password2" required>
-  </label>
-  <button type="submit">Luo tunnus</button>
-</form>
-<p>Onko sinulla jo tunnus? <a href="{{ url_for('login') }}">Kirjaudu sisään</a></p>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Rekisteröinti</title>
+</head>
+
+<body>
+  <form action="/create" method="post">
+    <p>
+      Tunnus: <br />
+      <input type="text" name="username" />
+    </p>
+    <p>
+      Salasana: <br />
+      <input type="password" name="password1" />
+    </p>
+    <p>
+      Salasana uudestaan: <br />
+      <input type="password" name="password2" />
+    </p>
+    <input type="submit" value="Luo tunnus" />
+  </form>
+</body>
+
+</html>

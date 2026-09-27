@@ -1,14 +1,20 @@
 import secrets
-from flask import Flask, session, g
+from flask import Flask
+from flask import session
+import config
 import db
+from flask import redirect, render_template, request, session
+from werkzeug.security import check_password_hash
+
+
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+app.secret_key = config.secret_key
 
 @app.before_request
 def before_request():
     if "csrf_token" not in session:
-        session["csrf_token"] = secrets.token_hex(16)
+        session["csrf_token"] = config.secret_key
 
 @app.context_processor
 def inject():
@@ -24,56 +30,46 @@ def init_db():
 
 @app.route("/")
 def index():
-    return "Billiards forum - coming soon"
- # lisää importteihin:
-from flask import render_template, request, redirect, url_for, flash, abort
-from werkzeug.security import generate_password_hash, check_password_hash
+    return render_template("index.html")
+
 
 
 
 @app.route("/register", methods=["GET", "POST"])
+@app.route("/register")
 def register():
-    if request.method == "POST":
-        if request.form["csrf_token"] != session["csrf_token"]:
-            abort(403)
-        username = request.form["username"]
-        password = request.form["password"]
-        password2 = request.form["password2"]
-        if password != password2:
-            flash("Passwords do not match")
-            return redirect("/register")
-        con = db.get_connection()
-        try:
-            con.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)",
-                        [username, generate_password_hash(password)])
-            con.commit()
-        except Exception:
-            flash("Username already taken")
-            con.close()
-            return redirect("/register")
-        con.close()
-        flash("Account created, you can now log in")
-        return redirect("/login")
     return render_template("register.html")
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/create", methods=["POST"])
+def create():
+    username = request.form["username"]
+    password1 = request.form["password1"]
+    password2 = request.form["password2"]
+    if password1 != password2:
+        return "VIRHE: salasanat eivät ole samat"
+    password_hash = generate_password_hash(password1)
+
+    try:
+        sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+        db.execute(sql, [username, password_hash])
+    except sqlite3.IntegrityError:
+        return "VIRHE: tunnus on jo varattu"
+
+    return "Tunnus luotu"
+
+@app.route("/login", methods=["POST"])
 def login():
-    if request.method == "POST":
-        if request.form["csrf_token"] != session["csrf_token"]:
-            abort(403)
-        username = request.form["username"]
-        password = request.form["password"]
-        con = db.get_connection()
-        user = con.execute("SELECT * FROM users WHERE username = ?",
-                           [username]).fetchone()
-        con.close()
-        if user is None or not check_password_hash(user["password_hash"], password):
-            flash("Wrong username or password")
-            return redirect("/login")
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]
+    username = request.form["username"]
+    password = request.form["password"]
+    
+    sql = "SELECT password_hash FROM users WHERE username = ?"
+    password_hash = db.query(sql, [username])[0][0]
+
+    if check_password_hash(password_hash, password):
+        session["username"] = username
         return redirect("/")
-    return render_template("login.html")
+    else:
+        return "VIRHE: väärä tunnus tai salasana"
 
 @app.route("/logout")
 def logout():
