@@ -22,4 +22,15 @@
 {% else %}
   <p>Ei kommenteja.</p>
 {% endfor %}
+{% if session.get("user_id") %}
+  <form method="post" action="/post/{{ post['id'] }}/comment" class="auth-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Add a comment
+      <textarea name="content" rows="4" required></textarea>
+    </label>
+    <button type="submit">Send</button>
+  </form>
+{% else %}
+  <p><a href="/login">Log in</a> to comment.</p>
+{% endif %}
 {% endblock %}

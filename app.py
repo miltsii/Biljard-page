@@ -130,3 +130,19 @@ def show_post(post_id):
     con.close()
     return render_template("post.html", post=post, comments=comments)
 
+@app.route("/post/<int:post_id>/comment", methods=["POST"])
+def add_comment(post_id):
+    if not session.get("user_id"):
+        flash("Please log in first")
+        return redirect("/login")
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
+    con = db.get_connection()
+    post = con.execute("SELECT * FROM posts WHERE id = ?", [post_id]).fetchone()
+    if post is None:
+        abort(404)
+    con.execute("INSERT INTO comments (content, user_id, post_id) VALUES (?, ?, ?)",
+                [request.form["content"], session["user_id"], post_id])
+    con.commit()
+    con.close()
+    return redirect("/post/" + str(post_id))
