@@ -1,40 +1,89 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="fi">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Biljardiyhteisö{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Biljardi{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-    <div class="site-wrapper">
-        <aside class="sidebar">
-            <a class="site-title" href="/">
-                Biljardiyhteisö
+
+<nav>
+    <div class="nav-container">
+
+        <a class="logo" href="{{ url_for('index') }}">
+            🎱 Biljardi
+        </a>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('index') }}">
+                Etusivu
             </a>
 
-            <nav class="navigation">
-                <a href="/">Etusivu</a>
-                <a href="/search">Hae kirjoituksia</a>
+            <a href="{{ url_for('search') }}">
+                Haku
+            </a>
 
-                {% if session.get("user_id") %}
-                    <a href="/new_post">Uusi kirjoitus</a>
-                    <a href="/user/{{ session['user_id'] }}">Oma profiili</a>
-                    <a href="/logout">Kirjaudu ulos</a>
-                {% else %}
-                    <a href="/login">Kirjaudu sisään</a>
-                    <a href="/register">Luo tunnus</a>
-                {% endif %}
-            </nav>
-        </aside>
+            {% if session.get("user_id") %}
 
-        <main class="content">
-            {% for message in get_flashed_messages() %}
-                <p class="flash">{{ message }}</p>
-            {% endfor %}
+                <a href="{{ url_for('new_post') }}">
+                    Uusi julkaisu
+                </a>
 
-            {% block content %}{% endblock %}
-        </main>
+                <span>
+                    Hei {{ session["username"] }}!
+                </span>
+
+                <a href="{{ url_for('logout') }}">
+                    Kirjaudu ulos
+                </a>
+
+            {% else %}
+
+                <a href="{{ url_for('login') }}">
+                    Kirjaudu
+                </a>
+
+                <a href="{{ url_for('register') }}">
+                    Rekisteröidy
+                </a>
+
+            {% endif %}
+
+        </div>
+
     </div>
+</nav>
+
+
+<main>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+
 </body>
 </html>
+
+

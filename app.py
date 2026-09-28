@@ -7,7 +7,6 @@ import db
 
 app = Flask(__name__)
 
-# Salainen avain istuntoja varten
 app.secret_key = "dev-secret-key-change-this-later"
 
 
@@ -23,10 +22,8 @@ def inject():
         "csrf_token": session.get("csrf_token", "")
     }
 
-
-# ----------------------------------------
 # Tietokannan alustaminen
-# ----------------------------------------
+
 
 @app.cli.command("init-db")
 def init_db():
@@ -40,9 +37,8 @@ def init_db():
     print("Database initialized.")
 
 
-# ----------------------------------------
 # Etusivu
-# ----------------------------------------
+
 
 @app.route("/")
 def index():
@@ -63,9 +59,8 @@ def index():
     return render_template("index.html", posts=posts)
 
 
-# ----------------------------------------
 # Rekisteröityminen
-# ----------------------------------------
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -99,10 +94,8 @@ def register():
 
     return redirect("/login")
 
-
-# ----------------------------------------
 # Kirjautuminen
-# ----------------------------------------
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -139,9 +132,8 @@ def login():
     return "VIRHE: väärä käyttäjänimi tai salasana"
 
 
-# ----------------------------------------
 # Uloskirjautuminen
-# ----------------------------------------
+
 
 @app.route("/logout")
 def logout():
@@ -150,10 +142,7 @@ def logout():
 
     return redirect("/")
 
-
-# ----------------------------------------
 # Uuden julkaisun tekeminen
-# ----------------------------------------
 
 @app.route("/new_post", methods=["GET", "POST"])
 def new_post():
@@ -169,9 +158,14 @@ def new_post():
         if request.form["csrf_token"] != session["csrf_token"]:
             abort(403)
 
-        title = request.form["title"]
-        content = request.form["content"]
-        category_id = request.form.get("category_id") or None
+        title = request.form["title"].strip()
+        content = request.form["content"].strip()
+
+        if not title:
+            return "Otsikko ei saa olla tyhjä"
+
+        if not content:
+            return "Sisältö ei saa olla tyhjä"
 
         con.execute(
             """
@@ -210,9 +204,8 @@ def new_post():
     )
 
 
-# ----------------------------------------
 # Yksittäinen julkaisu
-# ----------------------------------------
+
 
 @app.route("/post/<int:post_id>")
 def show_post(post_id):
@@ -303,9 +296,8 @@ def add_comment(post_id):
     return redirect("/post/" + str(post_id))
 
 
-# ----------------------------------------
 # Julkaisun muokkaaminen
-# ----------------------------------------
+
 
 @app.route("/post/<int:post_id>/edit", methods=["GET", "POST"])
 def edit_post(post_id):
@@ -378,9 +370,8 @@ def edit_post(post_id):
     )
 
 
-# ----------------------------------------
 # Julkaisun poistaminen
-# ----------------------------------------
+
 
 @app.route("/post/<int:post_id>/delete", methods=["POST"])
 def delete_post(post_id):
@@ -424,9 +415,8 @@ def delete_post(post_id):
     return redirect("/")
 
 
-# ----------------------------------------
 # Haku
-# ----------------------------------------
+
 
 @app.route("/search")
 def search():

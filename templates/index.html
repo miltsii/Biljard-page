@@ -1,39 +1,107 @@
-```html
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biljardisivu</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
 
-<body>
+{% extends "layout.html" %}
 
-<nav>
-    <a href="/">Biljardi</a>
-    <a href="/login">Kirjaudu</a>
-    <a href="/register">Rekisteröidy</a>
-    <a href="/about">Tietoa</a>
-</nav>
+{% block title %}
+Biljardi - Etusivu
+{% endblock %}
 
-<main>
-    <h1>Tervetuloa biljardisivulle!</h1>
+
+{% block content %}
+
+<section class="hero">
+
+    <h1>Biljardiyhteisö</h1>
 
     <p>
-        Tämä sivusto on vielä työn alla.
-        Tänne tulee myöhemmin biljardiin liittyviä toimintoja.
+        Tervetuloa biljardiyhteisöön.
+        Tutustu julkaisuihin ja keskustele muiden pelaajien kanssa.
     </p>
 
-    <div class="card">
-        <h2>Biljardiyhteisö</h2>
-        <p>
-            Voit myöhemmin esimerkiksi kirjautua sisään,
-            luoda julkaisuja ja keskustella muiden pelaajien kanssa.
-        </p>
-    </div>
-</main>
+    {% if session.get("user_id") %}
 
-</body>
-</html>
-```
+        <a class="button" href="{{ url_for('new_post') }}">
+            Tee uusi julkaisu
+        </a>
+
+    {% else %}
+
+        <a class="button" href="{{ url_for('register') }}">
+            Luo käyttäjätili
+        </a>
+
+    {% endif %}
+
+</section>
+
+
+<section>
+
+    <h2>Viimeisimmät julkaisut</h2>
+
+    {% if posts %}
+
+        <div class="posts">
+
+            {% for post in posts %}
+
+                <article class="post-card">
+
+                    <h3>
+                        <a href="{{ url_for('show_post', post_id=post.id) }}">
+                            {{ post.title }}
+                        </a>
+                    </h3>
+
+                    <p class="post-meta">
+                        {{ post.username }}
+
+                        {% if post.category %}
+                            · {{ post.category }}
+                        {% endif %}
+
+                        · {{ post.created_at }}
+                    </p>
+
+                    <p>
+                        {{ post.content[:250] }}
+
+                        {% if post.content|length > 250 %}
+                            ...
+                        {% endif %}
+                    </p>
+
+                    <a href="{{ url_for('show_post', post_id=post.id) }}">
+                        Lue lisää →
+                    </a>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty">
+
+            <p>
+                Sivustolla ei ole vielä julkaisuja.
+            </p>
+
+            {% if session.get("user_id") %}
+
+                <a class="button"
+                   href="{{ url_for('new_post') }}">
+                    Tee ensimmäinen julkaisu
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
+
