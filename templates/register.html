@@ -1,36 +1,94 @@
-```html
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekisteröidy</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
 
-<body>
+{% extends "layout.html" %}
 
-<nav>
-    <a href="/">Biljardi</a>
-    <a href="/login">Kirjaudu</a>
-    <a href="/register">Rekisteröidy</a>
-    <a href="/about">Tietoa</a>
-</nav>
+{% block title %}
+Rekisteröidy
+{% endblock %}
 
-<main>
+
+{% block content %}
+
+<div class="form-container">
+
     <h1>Rekisteröidy</h1>
 
-    <form>
-        <label for="username">Käyttäjänimi</label>
-        <input type="text" id="username" name="username">
+    <p>
+        Luo tunnus, jotta voit julkaista ja kommentoida.
+    </p>
 
-        <label for="password">Salasana</label>
-        <input type="password" id="password" name="password">
 
-        <button type="submit">Rekisteröidy</button>
+    {% if error %}
+
+        <div class="error">
+            {{ error }}
+        </div>
+
+    {% endif %}
+
+
+    <form method="POST"
+          action="{{ url_for('register') }}">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token }}">
+
+
+        <label for="username">
+            Käyttäjänimi
+        </label>
+
+        <input
+            type="text"
+            id="username"
+            name="username"
+            maxlength="30"
+            required
+        >
+
+
+        <label for="password1">
+            Salasana
+        </label>
+
+        <input
+            type="password"
+            id="password1"
+            name="password1"
+            minlength="6"
+            required
+        >
+
+
+        <label for="password2">
+            Salasana uudelleen
+        </label>
+
+        <input
+            type="password"
+            id="password2"
+            name="password2"
+            minlength="6"
+            required
+        >
+
+
+        <button type="submit">
+            Rekisteröidy
+        </button>
+
     </form>
-</main>
 
-</body>
-</html>
-```
+
+    <p class="form-footer">
+        Onko sinulla jo tunnus?
+
+        <a href="{{ url_for('login') }}">
+            Kirjaudu sisään
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}
+

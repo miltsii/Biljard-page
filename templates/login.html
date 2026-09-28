@@ -1,36 +1,79 @@
-```html
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kirjaudu</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
 
-<body>
+{% extends "layout.html" %}
 
-<nav>
-    <a href="/">Biljardi</a>
-    <a href="/login">Kirjaudu</a>
-    <a href="/register">Rekisteröidy</a>
-    <a href="/about">Tietoa</a>
-</nav>
+{% block title %}
+Kirjaudu
+{% endblock %}
 
-<main>
+
+{% block content %}
+
+<div class="form-container">
+
     <h1>Kirjaudu</h1>
 
-    <form>
-        <label for="username">Käyttäjänimi</label>
-        <input type="text" id="username" name="username">
+    <p>
+        Kirjaudu sisään käyttääksesi kaikkia toimintoja.
+    </p>
 
-        <label for="password">Salasana</label>
-        <input type="password" id="password" name="password">
 
-        <button type="submit">Kirjaudu</button>
+    {% if error %}
+
+        <div class="error">
+            {{ error }}
+        </div>
+
+    {% endif %}
+
+
+    <form method="POST"
+          action="{{ url_for('login') }}">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token }}">
+
+
+        <label for="username">
+            Käyttäjänimi
+        </label>
+
+        <input
+            type="text"
+            id="username"
+            name="username"
+            required
+        >
+
+
+        <label for="password">
+            Salasana
+        </label>
+
+        <input
+            type="password"
+            id="password"
+            name="password"
+            required
+        >
+
+
+        <button type="submit">
+            Kirjaudu
+        </button>
+
     </form>
-</main>
 
-</body>
-</html>
-```
+
+    <p class="form-footer">
+        Eikö sinulla ole vielä tunnusta?
+
+        <a href="{{ url_for('register') }}">
+            Rekisteröidy
+        </a>
+    </p>
+
+</div>
+
+
+

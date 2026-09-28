@@ -1,22 +1,96 @@
+
 {% extends "layout.html" %}
-{% block content %}
-<h1>New post</h1>
-<form method="post" class="auth-form">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-  <label>Title
-    <input type="text" name="title" required>
-  </label>
-  <label>Category
-    <select name="category_id">
-      <option value="">-- no category --</option>
-      {% for c in categories %}
-        <option value="{{ c['id'] }}">{{ c['name'] }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label>Content
-    <textarea name="content" rows="8" required></textarea>
-  </label>
-  <button type="submit">Publish</button>
-</form>
+
+{% block title %}
+Uusi julkaisu
 {% endblock %}
+
+
+{% block content %}
+
+<div class="form-container wide">
+
+    <h1>Uusi julkaisu</h1>
+
+    <p>
+        Tee julkaisu.
+    </p>
+
+
+    {% if error %}
+
+        <div class="error">
+            {{ error }}
+        </div>
+
+    {% endif %}
+
+
+    <form method="POST"
+          action="{{ url_for('new_post') }}">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token }}">
+
+
+        <label for="title">
+            Otsikko
+        </label>
+
+        <input
+            type="text"
+            id="title"
+            name="title"
+            maxlength="100"
+            required
+        >
+
+
+        <label for="category_id">
+            Kategoria
+        </label>
+
+        <select
+            id="category_id"
+            name="category_id"
+        >
+
+            <option value="">
+                Ei kategoriaa
+            </option>
+
+            {% for category in categories %}
+
+                <option value="{{ category.id }}">
+                    {{ category.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <label for="content">
+            Sisältö
+        </label>
+
+        <textarea
+            id="content"
+            name="content"
+            rows="10"
+            required
+        ></textarea>
+
+
+        <button type="submit">
+            Julkaise
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
+
+
