@@ -32,10 +32,21 @@ One place for billiards players to connect, compete, share, and improve.
 
 # Installation
 
-Run "sqlite3 database.db < sql/schema.sql" to initialize the database.
-Run "sqlite3 database.db < sql/populate.sql" to populate the database.
-Create a new virtual environment with "python3 -m venv .venv"
-Activate the venv with "source venv/bin/activate"
-Run "pip install -r requirements.txt" to install project dependencies.
-Call "flask run" to launch the server.
-Go to "localhost:5000" in a web browser to access the site.
+
+Install the required dependencies:
+
+pip install -r requirements.txt
+
+Initialize the database:
+
+python -m flask --app app init-db
+
+Start the application:
+
+python -m flask --app app run
+
+The application can then be opened at:
+
+http://127.0.0.1:5000
+
+The database is created locally from schema.sql. The database.db file is not included in the repository.
