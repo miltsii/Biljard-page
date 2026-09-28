@@ -22,6 +22,13 @@ def inject():
         "csrf_token": session.get("csrf_token", "")
     }
 
+
+def check_csrf():
+    token = request.form.get("csrf_token")
+    
+    if token != session.get("csrf_token"):
+        abort(403)
+
 # Tietokannan alustaminen
 
 
