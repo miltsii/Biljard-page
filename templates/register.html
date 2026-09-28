@@ -1,26 +1,36 @@
+```html
 <!DOCTYPE html>
-<html>
-
+<html lang="fi">
 <head>
-  <title>Rekisteröinti</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekisteröidy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-  <form action="/create" method="post">
-    <p>
-      Tunnus: <br />
-      <input type="text" name="username" />
-    </p>
-    <p>
-      Salasana: <br />
-      <input type="password" name="password1" />
-    </p>
-    <p>
-      Salasana uudestaan: <br />
-      <input type="password" name="password2" />
-    </p>
-    <input type="submit" value="Luo tunnus" />
-  </form>
-</body>
 
+<nav>
+    <a href="/">Biljardi</a>
+    <a href="/login">Kirjaudu</a>
+    <a href="/register">Rekisteröidy</a>
+    <a href="/about">Tietoa</a>
+</nav>
+
+<main>
+    <h1>Rekisteröidy</h1>
+
+    <form>
+        <label for="username">Käyttäjänimi</label>
+        <input type="text" id="username" name="username">
+
+        <label for="password">Salasana</label>
+        <input type="password" id="password" name="password">
+
+        <button type="submit">Rekisteröidy</button>
+    </form>
+</main>
+
+</body>
 </html>
+```

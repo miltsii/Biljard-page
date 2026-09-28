@@ -1,44 +1,39 @@
-{% extends "layout.html" %}
+```html
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biljardisivu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-{% block title %}Etusivu – Biljardiyhteisö{% endblock %}
+<body>
 
-{% block content %}
-<h1>Biljardiyhteisö</h1>
+<nav>
+    <a href="/">Biljardi</a>
+    <a href="/login">Kirjaudu</a>
+    <a href="/register">Rekisteröidy</a>
+    <a href="/about">Tietoa</a>
+</nav>
 
-<p>
-    Keskustele biljardista, jaa kokemuksia ja löydä pelikavereita.
-</p>
+<main>
+    <h1>Tervetuloa biljardisivulle!</h1>
 
-{% if session.get("user_id") %}
     <p>
-        <a href="/new_post">Kirjoita uusi julkaisu</a>
+        Tämä sivusto on vielä työn alla.
+        Tänne tulee myöhemmin biljardiin liittyviä toimintoja.
     </p>
-{% endif %}
 
-<h2>Viimeisimmät kirjoitukset</h2>
-
-{% for post in posts %}
-    <article class="post">
-        <h2>
-            <a href="/post/{{ post['id'] }}">
-                {{ post['title'] }}
-            </a>
-        </h2>
-
-        <p class="meta">
-            Kirjoittaja
-            <a href="/user/{{ post['user_id'] }}">
-                {{ post['username'] }}
-            </a>
-            {% if post['category'] %}
-                · {{ post['category'] }}
-            {% endif %}
-            · {{ post['created_at'] }}
+    <div class="card">
+        <h2>Biljardiyhteisö</h2>
+        <p>
+            Voit myöhemmin esimerkiksi kirjautua sisään,
+            luoda julkaisuja ja keskustella muiden pelaajien kanssa.
         </p>
+    </div>
+</main>
 
-        <p>{{ post['content'] }}</p>
-    </article>
-{% else %}
-    <p>Kirjoituksia ei ole vielä lisätty.</p>
-{% endfor %}
-{% endblock %}
+</body>
+</html>
+```

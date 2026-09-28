@@ -1,15 +1,36 @@
-{% extends "layout.html" %}
-{% block content %}
-<h1>Log in</h1>
-<form method="post" class="auth-form">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-  <label>Username
-    <input type="text" name="username" required autofocus>
-  </label>
-  <label>Password
-    <input type="password" name="password" required>
-  </label>
-  <button type="submit">Log in</button>
-</form>
-<p>Don't have an account yet? <a href="{{ url_for('register') }}">Sign up</a></p>
-{% endblock %}
+```html
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirjaudu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav>
+    <a href="/">Biljardi</a>
+    <a href="/login">Kirjaudu</a>
+    <a href="/register">Rekisteröidy</a>
+    <a href="/about">Tietoa</a>
+</nav>
+
+<main>
+    <h1>Kirjaudu</h1>
+
+    <form>
+        <label for="username">Käyttäjänimi</label>
+        <input type="text" id="username" name="username">
+
+        <label for="password">Salasana</label>
+        <input type="password" id="password" name="password">
+
+        <button type="submit">Kirjaudu</button>
+    </form>
+</main>
+
+</body>
+</html>
+```
