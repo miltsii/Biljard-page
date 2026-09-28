@@ -1,42 +1,144 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="post">
-  <h1>{{ post['title'] }}</h1>
-  <p class="meta">
-    by <a href="/user/{{ post['user_id'] }}">{{ post['username'] }}</a>
-    {% if post['category'] %}in {{ post['category'] }}{% endif %}
-    - {{ post['created_at'] }}
-  </p>
-  <p>{{ post['content'] }}</p>
-</div>
 
-<h2>Comments</h2>
-{% for comment in comments %}
-  <div class="comment">
-    <p class="meta">
-      <a href="/user/{{ comment['user_id'] }}">{{ comment['username'] }}</a>
-      - {{ comment['created_at'] }}
-    </p>
-    <p>{{ comment['content'] }}</p>
-  </div>
-{% else %}
-  <p>Ei kommenteja.</p>
-{% endfor %}
-{% if session.get("user_id") %}
-  <form method="post" action="/post/{{ post['id'] }}/comment" class="auth-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    <label>Add a comment
-      <textarea name="content" rows="4" required></textarea>
-    </label>
-    <button type="submit">Send</button>
-  </form>
-{% else %}
-  <p><a href="/login">Log in</a> to comment.</p>
-  {% if session.get("user_id") == post['user_id'] %}
-    <p><a href="/post/{{ post['id'] }}/edit">Edit</a></p>
-    <form method="post" action="/post/{{ post['id'] }}/delete">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <button type="submit">Remove post</button>
-    </form>
-{% endif %}
+{% extends "layout.html" %}
+
+{% block title %}
+{{ post.title }}
 {% endblock %}
+
+{% block content %}
+
+<article class="single-post">
+
+    <h1>
+        {{ post.title }}
+    </h1>
+
+    <p class="post-meta">
+        {{ post.username }}
+
+        {% if post.category %}
+            · {{ post.category }}
+        {% endif %}
+
+        · {{ post.created_at }}
+    </p>
+
+    <div class="post-content">
+        {{ post.content }}
+    </div>
+
+
+    {% if session.get("user_id") == post.user_id %}
+
+        <div class="post-actions">
+
+            <a class="button"
+               href="{{ url_for('edit_post', post_id=post.id) }}">
+                Muokkaa
+            </a>
+
+
+            <form method="POST"
+                  action="{{ url_for('delete_post', post_id=post.id) }}"
+                  onsubmit="return confirm('Haluatko varmasti poistaa julkaisun?');">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token }}">
+
+                <button class="delete-button"
+                        type="submit">
+                    Poista
+                </button>
+
+            </form>
+
+        </div>
+
+    {% endif %}
+
+</article>
+
+
+<section class="comments">
+
+    <h2>Kommentit</h2>
+
+
+    {% if comments %}
+
+        {% for comment in comments %}
+
+            <div class="comment">
+
+                <strong>
+                    {{ comment.username }}
+                </strong>
+
+                <span class="comment-date">
+                    {{ comment.created_at }}
+                </span>
+
+                <p>
+                    {{ comment.content }}
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>
+            Ei vielä kommentteja.
+        </p>
+
+    {% endif %}
+
+
+    {% if session.get("user_id") %}
+
+        <h3>Lisää kommentti</h3>
+
+        <form method="POST"
+              action="{{ url_for('add_comment', post_id=post.id) }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token }}">
+
+
+            <label for="content">
+                Kommentti
+            </label>
+
+            <textarea
+                id="content"
+                name="content"
+                rows="5"
+                required
+            ></textarea>
+
+
+            <button type="submit">
+                Lähetä kommentti
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <p>
+            <a href="{{ url_for('login') }}">
+                Kirjaudu sisään
+            </a>
+            kommentoidaksesi.
+        </p>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
+
+
