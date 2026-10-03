@@ -1,2 +1,10 @@
-pycache
-db.py
+__pycache__/
+*.pyc
+database.db
+*.db
+venv/
+.venv/
+.env
+.idea/
+.vscode/
+.DS_Store
