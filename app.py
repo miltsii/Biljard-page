@@ -210,419 +210,61 @@ def search():
 
 
 
-# Rekisteröityminen
-
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     if request.method == "GET":
-        return render_template("register.html")
-
-    username = request.form["username"]
-    password1 = request.form["password1"]
-    password2 = request.form["password2"]
-
-    if password1 != password2:
-        return "VIRHE: salasanat eivät ole samat"
-
-    if not username or not password1:
-        return "VIRHE: täytä kaikki kentät"
-
-    password_hash = generate_password_hash(password1)
-
-    try:
-        db.execute(
-            """
-            INSERT INTO users (username, password_hash)
-            VALUES (?, ?)
-            """,
-            [username, password_hash]
-        )
-
-    except sqlite3.IntegrityError:
-        return "VIRHE: käyttäjänimi on jo varattu"
-
-    return redirect("/login")
-
-# Kirjautuminen
+        return render_template("register.html", username="", errors=[])
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    errors = validate_credentials(username, password, request.form.get("password2", ""))
+    if not errors:
+        try:
+            execute("INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                    (username, generate_password_hash(password)))
+        except sqlite3.IntegrityError:
+            errors.append("Tunnus on jo varattu.")
+    if errors:
+        return render_template("register.html", username=username, errors=errors), 400
+    flash("Tunnus luotu. Voit nyt kirjautua sisään.")
+    return redirect(url_for("login"))
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     if request.method == "GET":
-        return render_template("login.html")
-
-    username = request.form["username"]
-    password = request.form["password"]
-
-    con = db.get_connection()
-
-    user = con.execute(
-        """
-        SELECT id, username, password_hash
-        FROM users
-        WHERE username = ?
-        """,
-        [username]
-    ).fetchone()
-
-    con.close()
-
-    if user is None:
-        return "VIRHE: väärä käyttäjänimi tai salasana"
-
-    if check_password_hash(user["password_hash"], password):
-
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]
-
-        return redirect("/")
-
-    return "VIRHE: väärä käyttäjänimi tai salasana"
+        return render_template("login.html", next=request.args.get("next", ""), error=None)
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    user = query_one("SELECT * FROM users WHERE username = ?", (username,))
+    if user is None or not check_password_hash(user["password_hash"], password):
+        return render_template("login.html", next=request.form.get("next", ""),
+                               error="Väärä tunnus tai salasana."), 401
+    session.clear()  # uusi istunto kirjautuessa
+    session["user_id"] = user["id"]
+    session["username"] = user["username"]
+    session["csrf_token"] = secrets.token_hex(16)
+    return redirect(safe_next(request.form.get("next")))
 
 
-# Uloskirjautuminen
-
-
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
-
     session.clear()
-
-    return redirect("/")
-
-# Uuden julkaisun tekeminen
-
-@app.route("/new_post", methods=["GET", "POST"])
-def new_post():
-
-    if not session.get("user_id"):
-        flash("Kirjaudu ensin sisään.")
-        return redirect("/login")
-
-    con = db.get_connection()
-
-    if request.method == "POST":
-
-        if request.form["csrf_token"] != session["csrf_token"]:
-            abort(403)
-
-        title = request.form["title"].strip()
-        content = request.form["content"].strip()
-
-        if not title:
-            return "Otsikko ei saa olla tyhjä"
-
-        if not content:
-            return "Sisältö ei saa olla tyhjä"
-
-        con.execute(
-            """
-            INSERT INTO posts
-            (title, content, user_id, category_id)
-            VALUES (?, ?, ?, ?)
-            """,
-            [
-                title,
-                content,
-                session["user_id"],
-                category_id
-            ]
-        )
-
-        con.commit()
-        con.close()
-
-        flash("Julkaisu luotu!")
-
-        return redirect("/")
-
-    categories = con.execute(
-        """
-        SELECT *
-        FROM categories
-        ORDER BY name
-        """
-    ).fetchall()
-
-    con.close()
-
-    return render_template(
-        "new_post.html",
-        categories=categories
-    )
+    return redirect(url_for("index"))
 
 
-# Yksittäinen julkaisu
-
-
-@app.route("/post/<int:post_id>")
-def show_post(post_id):
-
-    con = db.get_connection()
-
-    post = con.execute(
-        """
-        SELECT posts.*,
-               users.username,
-               categories.name AS category
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        LEFT JOIN categories ON posts.category_id = categories.id
-        WHERE posts.id = ?
-        """,
-        [post_id]
-    ).fetchone()
-
-    if post is None:
-        con.close()
+@app.route("/user/<int:user_id>")
+def user_page(user_id):
+    user = query_one("SELECT id, username, created_at FROM users WHERE id = ?", (user_id,))
+    if user is None:
         abort(404)
-
-    comments = con.execute(
-        """
-        SELECT comments.*,
-               users.username
-        FROM comments
-        JOIN users ON comments.user_id = users.id
-        WHERE comments.post_id = ?
-        ORDER BY comments.created_at
-        """,
-        [post_id]
-    ).fetchall()
-
-    con.close()
-
-    return render_template(
-        "post.html",
-        post=post,
-        comments=comments
-    )
-
-
-# ----------------------------------------
-# Kommentin lisääminen
-# ----------------------------------------
-
-@app.route("/post/<int:post_id>/comment", methods=["POST"])
-def add_comment(post_id):
-
-    if not session.get("user_id"):
-        flash("Kirjaudu ensin sisään.")
-        return redirect("/login")
-
-    if request.form["csrf_token"] != session["csrf_token"]:
-        abort(403)
-
-    con = db.get_connection()
-
-    post = con.execute(
-        "SELECT * FROM posts WHERE id = ?",
-        [post_id]
-    ).fetchone()
-
-    if post is None:
-        con.close()
-        abort(404)
-
-    content = request.form["content"]
-
-    con.execute(
-        """
-        INSERT INTO comments
-        (content, user_id, post_id)
-        VALUES (?, ?, ?)
-        """,
-        [
-            content,
-            session["user_id"],
-            post_id
-        ]
-    )
-
-    con.commit()
-    con.close()
-
-    return redirect("/post/" + str(post_id))
-
-
-# Julkaisun muokkaaminen
-
-
-@app.route("/post/<int:post_id>/edit", methods=["GET", "POST"])
-def edit_post(post_id):
-
-    if not session.get("user_id"):
-        return redirect("/login")
-
-    con = db.get_connection()
-
-    post = con.execute(
-        "SELECT * FROM posts WHERE id = ?",
-        [post_id]
-    ).fetchone()
-
-    if post is None:
-        con.close()
-        abort(404)
-
-    if post["user_id"] != session["user_id"]:
-        con.close()
-        abort(403)
-
-    if request.method == "POST":
-
-        if request.form["csrf_token"] != session["csrf_token"]:
-            con.close()
-            abort(403)
-
-        title = request.form["title"]
-        content = request.form["content"]
-        category_id = request.form.get("category_id") or None
-
-        con.execute(
-            """
-            UPDATE posts
-            SET title = ?,
-                content = ?,
-                category_id = ?
-            WHERE id = ?
-            """,
-            [
-                title,
-                content,
-                category_id,
-                post_id
-            ]
-        )
-
-        con.commit()
-        con.close()
-
-        flash("Julkaisu päivitetty!")
-
-        return redirect("/post/" + str(post_id))
-
-    categories = con.execute(
-        """
-        SELECT *
-        FROM categories
-        ORDER BY name
-        """
-    ).fetchall()
-
-    con.close()
-
-    return render_template(
-        "edit_post.html",
-        post=post,
-        categories=categories
-    )
-
-
-# Julkaisun poistaminen
-
-
-@app.route("/post/<int:post_id>/delete", methods=["POST"])
-def delete_post(post_id):
-
-    if not session.get("user_id"):
-        return redirect("/login")
-
-    if request.form["csrf_token"] != session["csrf_token"]:
-        abort(403)
-
-    con = db.get_connection()
-
-    post = con.execute(
-        "SELECT * FROM posts WHERE id = ?",
-        [post_id]
-    ).fetchone()
-
-    if post is None:
-        con.close()
-        abort(404)
-
-    if post["user_id"] != session["user_id"]:
-        con.close()
-        abort(403)
-
-    con.execute(
-        "DELETE FROM comments WHERE post_id = ?",
-        [post_id]
-    )
-
-    con.execute(
-        "DELETE FROM posts WHERE id = ?",
-        [post_id]
-    )
-
-    con.commit()
-    con.close()
-
-    flash("Julkaisu poistettu!")
-
-    return redirect("/")
-
-
-# Haku
-
-
-@app.route("/search")
-def search():
-
-    q = request.args.get("q", "")
-    category_id = request.args.get("category_id", "")
-
-    con = db.get_connection()
-
-    categories = con.execute(
-        """
-        SELECT *
-        FROM categories
-        ORDER BY name
-        """
-    ).fetchall()
-
-    sql = """
-        SELECT posts.*,
-               users.username,
-               categories.name AS category
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        LEFT JOIN categories ON posts.category_id = categories.id
-        WHERE posts.title LIKE ?
-           OR posts.content LIKE ?
-    """
-
-    params = [
-        "%" + q + "%",
-        "%" + q + "%"
-    ]
-
-    if category_id:
-        sql += " AND posts.category_id = ?"
-        params.append(category_id)
-
-    sql += " ORDER BY posts.created_at DESC"
-
-    posts = con.execute(
-        sql,
-        params
-    ).fetchall()
-
-    con.close()
-
-    return render_template(
-        "search.html",
-        posts=posts,
-        q=q,
-        categories=categories,
-        selected=category_id
-    )
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    stats = query_one(
+        "SELECT (SELECT COUNT(*) FROM posts WHERE user_id = ?) AS posts,"
+        "       (SELECT COUNT(*) FROM comments WHERE user_id = ?) AS comments",
+        (user_id, user_id))
+    total = stats["posts"]
+    page, pages, offset = paginate(total, get_page())
+    posts = query(f"{POST_LIST_SQL} WHERE p.user_id = ? ORDER BY p.id DESC LIMIT ? OFFSET ?",
+                  (user_id, config.PAGE_SIZE, offset))
+    return render_template("user.html", user=user, stats=stats, posts=posts,
+                           page=page, pages=pages)
 
