@@ -234,7 +234,7 @@ def login():
         return render_template("login.html", next=request.args.get("next", ""), error=None)
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
-    user = query_one("SELECT * FROM users WHERE username = ?", (username,))
+    user = query_one("SELECT id, username, password_hash, created_at FROM users WHERE username = ?", (username,))
     if user is None or not check_password_hash(user["password_hash"], password):
         return render_template("login.html", next=request.form.get("next", ""),
                                error="Väärä tunnus tai salasana."), 401
