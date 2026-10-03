@@ -336,3 +336,63 @@ def delete_post(post_id):
     flash("Viesti poistettu.")
     return redirect(url_for("index"))
 
+
+
+@app.route("/post/<int:post_id>/comment", methods=["POST"])
+@login_required
+def add_comment(post_id):
+    post = load_post_or_404(post_id)
+    body, errors = validate_comment(request.form)
+    if errors:
+        categories = query(
+            "SELECT c.id, c.name FROM categories c JOIN post_categories pc ON pc.category_id = c.id "
+            "WHERE pc.post_id = ?", (post_id,))
+        total = query_one("SELECT COUNT(*) FROM comments WHERE post_id = ?", (post_id,))[0]
+        page, pages, offset = paginate(total, 1)
+        comments = query(
+            "SELECT c.*, u.username FROM comments c JOIN users u ON u.id = c.user_id "
+            "WHERE c.post_id = ? ORDER BY c.id LIMIT ? OFFSET ?",
+            (post_id, config.PAGE_SIZE, offset))
+        return render_template("post.html", post=post, categories=categories, comments=comments,
+                               total=total, page=page, pages=pages, errors=errors,
+                               comment_body=body), 400
+    execute("INSERT INTO comments (post_id, user_id, body) VALUES (?, ?, ?)",
+            (post_id, session["user_id"], body))
+    total = query_one("SELECT COUNT(*) FROM comments WHERE post_id = ?", (post_id,))[0]
+    last_page = max(ceil(total / config.PAGE_SIZE), 1)
+    return redirect(url_for("show_post", post_id=post_id, page=last_page) + "#comments")
+
+
+def load_comment_or_404(comment_id):
+    comment = query_one("SELECT * FROM comments WHERE id = ?", (comment_id,))
+    if comment is None:
+        abort(404)
+    return comment
+
+
+@app.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_comment(comment_id):
+    comment = load_comment_or_404(comment_id)
+    require_owner(comment["user_id"])
+    if request.method == "GET":
+        return render_template("comment_form.html", comment=comment, body=comment["body"], errors=[])
+    body, errors = validate_comment(request.form)
+    if errors:
+        return render_template("comment_form.html", comment=comment, body=body, errors=errors), 400
+    execute("UPDATE comments SET body = ? WHERE id = ?", (body, comment_id))
+    return redirect(url_for("show_post", post_id=comment["post_id"]))
+
+
+@app.route("/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    comment = load_comment_or_404(comment_id)
+    require_owner(comment["user_id"])
+    execute("DELETE FROM comments WHERE id = ?", (comment_id,))
+    flash("Kommentti poistettu.")
+    return redirect(url_for("show_post", post_id=comment["post_id"]))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
