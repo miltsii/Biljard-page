@@ -7,29 +7,26 @@ import db
 
 app = Flask(__name__)
 
-app.secret_key = "dev-secret-key-change-this-later"
+import re
+import secrets
+import sqlite3
+from functools import wraps
+from math import ceil
+
+from flask import (Flask, abort, flash, g, redirect, render_template, request,
+                   session, url_for)
+from werkzeug.security import check_password_hash, generate_password_hash
+
+import config
+
+app = Flask(__name__)
+app.secret_key = config.SECRET_KEY
+
+USERNAME_RE = re.compile(r"^[A-Za-z0-9_]{3,20}$")
+PASSWORD_MIN, PASSWORD_MAX = 8, 100
+TITLE_MAX, POST_MAX, COMMENT_MAX, QUERY_MAX = 100, 5000, 1000, 100
 
 
-@app.before_request
-def before_request():
-    if "csrf_token" not in session:
-        session["csrf_token"] = app.secret_key
-
-
-@app.context_processor
-def inject():
-    return {
-        "csrf_token": session.get("csrf_token", "")
-    }
-
-
-def check_csrf():
-    token = request.form.get("csrf_token")
-    
-    if token != session.get("csrf_token"):
-        abort(403)
-
-# Tietokannan alustaminen
 
 
 @app.cli.command("init-db")
