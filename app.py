@@ -28,17 +28,35 @@ TITLE_MAX, POST_MAX, COMMENT_MAX, QUERY_MAX = 100, 5000, 1000, 100
 
 
 
+def get_db():
+    if "db" not in g:
+        g.db = sqlite3.connect(config.DATABASE)
+        g.db.row_factory = sqlite3.Row
+        g.db.execute("PRAGMA foreign_keys = ON")
+    return g.db
 
-@app.cli.command("init-db")
-def init_db():
-    con = db.get_connection()
 
-    with open("schema.sql", encoding="utf-8") as f:
-        con.executescript(f.read())
+def query(sql, params=()):
+    return get_db().execute(sql, params).fetchall()
 
-    con.close()
 
-    print("Database initialized.")
+def query_one(sql, params=()):
+    return get_db().execute(sql, params).fetchone()
+
+
+def execute(sql, params=()):
+    db = get_db()
+    cur = db.execute(sql, params)
+    db.commit()
+    return cur
+
+
+@app.teardown_appcontext
+def close_db(exception):
+    db = g.pop("db", None)
+    if db is not None:
+        db.close()
+
 
 
 # Etusivu
