@@ -52,7 +52,7 @@ def execute(sql, params=()):
 
 
 @app.teardown_appcontext
-def close_db(exception):
+def close_db(_exception):
     db = g.pop("db", None)
     if db is not None:
         db.close()
@@ -103,12 +103,12 @@ def paginate(total, page):
 
 
 @app.errorhandler(403)
-def forbidden(e):
+def forbidden(_error):
     return render_template("error.html", code=403, message="Pääsy estetty."), 403
 
 
 @app.errorhandler(404)
-def not_found(e):
+def not_found(_error):
     return render_template("error.html", code=404, message="Sivua ei löytynyt."), 404
 
 #
