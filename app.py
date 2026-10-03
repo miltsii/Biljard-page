@@ -111,7 +111,73 @@ def forbidden(e):
 def not_found(e):
     return render_template("error.html", code=404, message="Sivua ei löytynyt."), 404
 
+#
 
+def validate_post_form(form):
+    title = form.get("title", "").strip()
+    body = form.get("body", "").strip()
+    errors = []
+    if not title or len(title) > TITLE_MAX:
+        errors.append(f"Otsikon pituus on 1–{TITLE_MAX} merkkiä.")
+    if not body or len(body) > POST_MAX:
+        errors.append(f"Sisällön pituus on 1–{POST_MAX} merkkiä.")
+    valid_ids = {c["id"] for c in query("SELECT id FROM categories")}
+    chosen = set()
+    for raw in form.getlist("categories"):
+        if not raw.isdigit() or int(raw) not in valid_ids:
+            errors.append("Virheellinen aihealue.")
+            break
+        chosen.add(int(raw))
+    if not chosen and not errors:
+        errors.append("Valitse vähintään yksi aihealue.")
+    return title, body, chosen, errors
+
+
+def validate_comment(form):
+    body = form.get("body", "").strip()
+    if not body or len(body) > COMMENT_MAX:
+        return body, [f"Kommentin pituus on 1–{COMMENT_MAX} merkkiä."]
+    return body, []
+
+
+def validate_credentials(username, password, password2):
+    errors = []
+    if not USERNAME_RE.match(username):
+        errors.append("Käyttäjätunnus on 3–20 merkkiä (kirjaimet, numerot ja alaviiva).")
+    if len(password) < PASSWORD_MIN or len(password) > PASSWORD_MAX:
+        errors.append(f"Salasanan pituus on {PASSWORD_MIN}–{PASSWORD_MAX} merkkiä.")
+    if password != password2:
+        errors.append("Salasanat eivät täsmää.")
+    return errors
+
+
+def load_post_or_404(post_id):
+    post = query_one(
+        "SELECT p.*, u.username FROM posts p JOIN users u ON u.id = p.user_id WHERE p.id = ?",
+        (post_id,))
+    if post is None:
+        abort(404)
+    return post
+
+
+def require_owner(owner_id):
+    if owner_id != session.get("user_id"):
+        abort(403)
+
+
+def save_categories(post_id, category_ids):
+    execute("DELETE FROM post_categories WHERE post_id = ?", (post_id,))
+    get_db().executemany(
+        "INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)",
+        [(post_id, c) for c in category_ids])
+    get_db().commit()
+
+
+POST_LIST_SQL = """
+    SELECT p.id, p.title, p.created_at, u.id AS user_id, u.username,
+           (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
+    FROM posts p JOIN users u ON u.id = p.user_id
+"""
 
 # Etusivu
 
