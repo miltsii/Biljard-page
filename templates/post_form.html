@@ -1,0 +1,60 @@
+
+{% extends "layout.html" %}
+
+{% block title %}
+Uusi julkaisu
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Uusi julkaisu</h1>
+
+    {% if errors %}
+        <div class="error">
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <label for="title">Otsikko</label>
+        <input
+            type="text"
+            id="title"
+            name="title"
+            value="{{ title }}"
+            maxlength="100"
+            required
+        >
+
+        <label for="body">Teksti</label>
+        <textarea
+            id="body"
+            name="body"
+            maxlength="5000"
+            required
+        >{{ body }}</textarea>
+
+        <fieldset>
+            <legend>Aihealueet</legend>
+
+            {% for category in categories %}
+                <label>
+                    <input
+                        type="checkbox"
+                        name="categories"
+                        value="{{ category.id }}"
+                        {% if category.id in selected_categories %}checked{% endif %}
+                    >
+                    {{ category.name }}
+                </label>
+            {% endfor %}
+        </fieldset>
+
+        <button type="submit">Julkaise</button>
+    </form>
+</div>
+{% endblock %}
