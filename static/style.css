@@ -331,4 +331,27 @@ footer {
     text-decoration: none;
 }
 
+.welcome-background {
+    min-height: calc(100vh - 80px);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.75),
+            rgba(255, 255, 255, 0.75)
+        ),
+        url("/static/DSCO1607.JPG");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+}
 }
