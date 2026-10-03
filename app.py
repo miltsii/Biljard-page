@@ -268,3 +268,71 @@ def user_page(user_id):
     return render_template("user.html", user=user, stats=stats, posts=posts,
                            page=page, pages=pages)
 
+
+
+@app.route("/post/new", methods=["GET", "POST"])
+@login_required
+def new_post():
+    categories = query("SELECT * FROM categories ORDER BY name")
+    if request.method == "GET":
+        return render_template("post_form.html", categories=categories, title="", body="",
+                               chosen=set(), errors=[], action=url_for("new_post"), heading="Uusi viesti")
+    title, body, chosen, errors = validate_post_form(request.form)
+    if errors:
+        return render_template("post_form.html", categories=categories, title=title, body=body,
+                               chosen=chosen, errors=errors, action=url_for("new_post"),
+                               heading="Uusi viesti"), 400
+    post_id = execute("INSERT INTO posts (user_id, title, body) VALUES (?, ?, ?)",
+                      (session["user_id"], title, body)).lastrowid
+    save_categories(post_id, chosen)
+    return redirect(url_for("show_post", post_id=post_id))
+
+
+@app.route("/post/<int:post_id>")
+def show_post(post_id):
+    post = load_post_or_404(post_id)
+    categories = query(
+        "SELECT c.id, c.name FROM categories c JOIN post_categories pc ON pc.category_id = c.id "
+        "WHERE pc.post_id = ? ORDER BY c.name", (post_id,))
+    total = query_one("SELECT COUNT(*) FROM comments WHERE post_id = ?", (post_id,))[0]
+    page, pages, offset = paginate(total, get_page())
+    comments = query(
+        "SELECT c.*, u.username FROM comments c JOIN users u ON u.id = c.user_id "
+        "WHERE c.post_id = ? ORDER BY c.id LIMIT ? OFFSET ?",
+        (post_id, config.PAGE_SIZE, offset))
+    return render_template("post.html", post=post, categories=categories, comments=comments,
+                           total=total, page=page, pages=pages, errors=[], comment_body="")
+
+
+@app.route("/post/<int:post_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_post(post_id):
+    post = load_post_or_404(post_id)
+    require_owner(post["user_id"])
+    categories = query("SELECT * FROM categories ORDER BY name")
+    action = url_for("edit_post", post_id=post_id)
+    if request.method == "GET":
+        chosen = {r["category_id"] for r in query(
+            "SELECT category_id FROM post_categories WHERE post_id = ?", (post_id,))}
+        return render_template("post_form.html", categories=categories, title=post["title"],
+                               body=post["body"], chosen=chosen, errors=[], action=action,
+                               heading="Muokkaa viestiä")
+    title, body, chosen, errors = validate_post_form(request.form)
+    if errors:
+        return render_template("post_form.html", categories=categories, title=title, body=body,
+                               chosen=chosen, errors=errors, action=action,
+                               heading="Muokkaa viestiä"), 400
+    execute("UPDATE posts SET title = ?, body = ? WHERE id = ?", (title, body, post_id))
+    save_categories(post_id, chosen)
+    return redirect(url_for("show_post", post_id=post_id))
+
+
+@app.route("/post/<int:post_id>/delete", methods=["POST"])
+@login_required
+def delete_post(post_id):
+    post = load_post_or_404(post_id)
+    require_owner(post["user_id"])
+    execute("DELETE FROM posts WHERE id = ?", (post_id,))
+    flash("Viesti poistettu.")
+    return redirect(url_for("index"))
+
