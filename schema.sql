@@ -1,38 +1,43 @@
-DROP TABLE IF EXISTS comments;
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS users;
+PRAGMA foreign_keys = ON;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY,
-    username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
+    name TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users,
-    category_id INTEGER REFERENCES categories,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS post_categories (
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    PRIMARY KEY (post_id, category_id)
+);
+
+CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY,
-    content TEXT NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users,
-    post_id INTEGER NOT NULL REFERENCES posts,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO categories (name) VALUES
-    ('Tournaments'),
-    ('Equipment'),
-    ('Technique'),
-    ('General');
+CREATE INDEX IF NOT EXISTS idx_posts_user ON posts(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_post_categories_cat ON post_categories(category_id);
+
+INSERT OR IGNORE INTO categories (name) VALUES
+    ('Pool'), ('Snooker'), ('Carom'), ('Equipment'), ('Tournaments'), ('General');
