@@ -179,26 +179,35 @@ POST_LIST_SQL = """
     FROM posts p JOIN users u ON u.id = p.user_id
 """
 
-# Etusivu
-
-
 @app.route("/")
 def index():
-    con = db.get_connection()
+    categories = query("SELECT * FROM categories ORDER BY name")
+    category_id = request.args.get("category", type=int)
+    where, params = "", []
+    if category_id is not None:
+        where = " WHERE EXISTS (SELECT 1 FROM post_categories pc WHERE pc.post_id = p.id AND pc.category_id = ?)"
+        params = [category_id]
+    total = query_one(f"SELECT COUNT(*) FROM posts p{where}", params)[0]
+    page, pages, offset = paginate(total, get_page())
+    posts = query(f"{POST_LIST_SQL}{where} ORDER BY p.id DESC LIMIT ? OFFSET ?",
+                  params + [config.PAGE_SIZE, offset])
+    return render_template("index.html", posts=posts, categories=categories,
+                           category_id=category_id, page=page, pages=pages)
 
-    posts = con.execute("""
-        SELECT posts.*,
-               users.username,
-               categories.name AS category
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-        LEFT JOIN categories ON posts.category_id = categories.id
-        ORDER BY posts.created_at DESC
-    """).fetchall()
 
-    con.close()
+@app.route("/search")
+def search():
+    q = request.args.get("q", "").strip()[:QUERY_MAX]
+    posts, page, pages = [], 1, 1
+    if q:
+        like = "%" + q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        where = " WHERE p.title LIKE ? ESCAPE '\\' OR p.body LIKE ? ESCAPE '\\'"
+        total = query_one(f"SELECT COUNT(*) FROM posts p{where}", (like, like))[0]
+        page, pages, offset = paginate(total, get_page())
+        posts = query(f"{POST_LIST_SQL}{where} ORDER BY p.id DESC LIMIT ? OFFSET ?",
+                      (like, like, config.PAGE_SIZE, offset))
+    return render_template("search.html", q=q, posts=posts, page=page, pages=pages)
 
-    return render_template("index.html", posts=posts)
 
 
 # Rekisteröityminen
