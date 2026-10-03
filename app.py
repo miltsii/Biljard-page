@@ -58,6 +58,60 @@ def close_db(exception):
         db.close()
 
 
+@app.before_request
+def csrf_protect():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(16)
+    if request.method == "POST":
+        submitted = request.form.get("csrf_token", "")
+        if not secrets.compare_digest(submitted, session["csrf_token"]):
+            abort(403)
+
+
+@app.context_processor
+def inject_globals():
+    return {"csrf_token": session.get("csrf_token", ""),
+            "current_user": session.get("username"),
+            "current_user_id": session.get("user_id")}
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Kirjaudu sisään ensin.")
+            return redirect(url_for("login", next=request.path))
+        return view(*args, **kwargs)
+    return wrapper
+
+
+def safe_next(target):
+    if target and target.startswith("/") and not target.startswith("//"):
+        return target
+    return url_for("index")
+
+
+def get_page():
+    page = request.args.get("page", 1, type=int)
+    return max(page or 1, 1)
+
+
+def paginate(total, page):
+    pages = max(ceil(total / config.PAGE_SIZE), 1)
+    page = min(page, pages)
+    return page, pages, (page - 1) * config.PAGE_SIZE
+
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("error.html", code=403, message="Pääsy estetty."), 403
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("error.html", code=404, message="Sivua ei löytynyt."), 404
+
+
 
 # Etusivu
 
