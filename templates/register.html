@@ -1,10 +1,8 @@
-
 {% extends "layout.html" %}
 
 {% block title %}
 Rekisteröidy
 {% endblock %}
-
 
 {% block content %}
 
@@ -16,23 +14,19 @@ Rekisteröidy
         Luo tunnus, jotta voit julkaista ja kommentoida.
     </p>
 
-
-    {% if error %}
-
+    {% if errors %}
         <div class="error">
-            {{ error }}
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
         </div>
-
     {% endif %}
 
-
-    <form method="POST"
-          action="{{ url_for('register') }}">
+    <form method="POST" action="{{ url_for('register') }}">
 
         <input type="hidden"
                name="csrf_token"
                value="{{ csrf_token }}">
-
 
         <label for="username">
             Käyttäjänimi
@@ -42,23 +36,23 @@ Rekisteröidy
             type="text"
             id="username"
             name="username"
-            maxlength="30"
+            minlength="3"
+            maxlength="20"
             required
         >
 
-
-        <label for="password1">
+        <label for="password">
             Salasana
         </label>
 
         <input
             type="password"
-            id="password1"
-            name="password1"
-            minlength="6"
+            id="password"
+            name="password"
+            minlength="8"
+            maxlength="100"
             required
         >
-
 
         <label for="password2">
             Salasana uudelleen
@@ -68,17 +62,16 @@ Rekisteröidy
             type="password"
             id="password2"
             name="password2"
-            minlength="6"
+            minlength="8"
+            maxlength="100"
             required
         >
-
 
         <button type="submit">
             Rekisteröidy
         </button>
 
     </form>
-
 
     <p class="form-footer">
         Onko sinulla jo tunnus?

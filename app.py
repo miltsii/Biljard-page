@@ -2,7 +2,6 @@
 import sqlite3
 from flask import Flask, session, redirect, render_template, request, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
-import db
 
 
 app = Flask(__name__)
