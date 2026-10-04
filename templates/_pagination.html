@@ -1,0 +1,7 @@
+{% if pages > 1 %}
+<nav class="pager" aria-label="Sivutus">
+  {% if page > 1 %}<a href="{{ url_for(endpoint, page=page-1, **args) }}{{ anchor|default('') }}">Edellinen</a>{% endif %}
+  <span>Sivu {{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a href="{{ url_for(endpoint, page=page+1, **args) }}{{ anchor|default('') }}">Seuraava</a>{% endif %}
+</nav>
+{% endif %}
