@@ -6,9 +6,33 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    line-height: 1.5;
     background: #f4f4f4;
     color: #222;
 }
+
+a {
+    color: #245c35;
+}
+
+h1 {
+    margin-top: 0;
+}
+
+main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #b8892b;
+    outline-offset: 2px;
+}
+
 
 nav {
     background: #17251b;
@@ -19,12 +43,11 @@ nav {
     max-width: 1000px;
     margin: auto;
     padding: 15px 20px;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 12px 20px;
 }
 
 .logo {
@@ -37,6 +60,7 @@ nav {
 .nav-links {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 18px;
 }
 
@@ -49,22 +73,21 @@ nav {
     text-decoration: underline;
 }
 
-main {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px;
+.nav-search {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
 }
 
-.hero {
-    background: white;
-    padding: 45px;
-    border-radius: 10px;
-    margin-bottom: 35px;
+.nav-search input {
+    width: 12rem;
+    padding: 6px 8px;
 }
 
-.hero h1 {
-    margin-top: 0;
-    font-size: 2.4rem;
+.nav-search button {
+    margin: 0;
+    padding: 6px 12px;
 }
 
 .button,
@@ -73,10 +96,9 @@ button {
     padding: 10px 16px;
     border: 0;
     border-radius: 5px;
-
     background: #245c35;
     color: white;
-
+    font: inherit;
     text-decoration: none;
     cursor: pointer;
 }
@@ -86,14 +108,157 @@ button:hover {
     background: #1b4528;
 }
 
+
+button.link,
+button.link:hover {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    text-decoration: underline;
+}
+
+button.danger,
+button.danger:hover {
+    color: #9b2929;
+}
+
+nav button.link {
+    color: white;
+}
+
+form.inline {
+    display: inline;
+}
+
+
+.messages {
+    margin-bottom: 20px;
+}
+
+.message,
+.flash {
+    background: #e0f2e5;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.errors {
+    background: #ffe0e0;
+    color: #8a0000;
+    padding: 12px 12px 12px 32px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.empty {
+    background: white;
+    color: #666;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 650px;
+    margin-top: 20px;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.stack label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-weight: bold;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font: inherit;
+    background: white;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="checkbox"] {
+    width: auto;
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px 14px;
+}
+
+.stack label.check {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-right: 16px;
+    font-weight: normal;
+}
+
+.stack button {
+    align-self: flex-start;
+}
+
+/* ---------- Front page ---------- */
+.hero {
+    background: white;
+    padding: 45px;
+    border-radius: 10px;
+    margin-bottom: 35px;
+}
+
+.hero h1 {
+    font-size: 2.4rem;
+}
+
+.filters {
+    margin: 0 0 20px;
+}
+
+.filters a {
+    display: inline-block;
+    margin: 0 6px 8px 0;
+    padding: 3px 12px;
+    border: 1px solid #245c35;
+    border-radius: 999px;
+    color: #245c35;
+    text-decoration: none;
+}
+
+.filters a.active {
+    background: #245c35;
+    color: white;
+}
+
+
 .posts {
     display: grid;
     gap: 20px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
+.posts li,
 .post-card {
     background: white;
-    padding: 25px;
+    padding: 20px 25px;
     border-radius: 8px;
 }
 
@@ -101,174 +266,87 @@ button:hover {
     margin-top: 0;
 }
 
-.post-card h3 a {
+.post-card h3 a,
+.post-title {
     color: #245c35;
     text-decoration: none;
 }
 
-.post-card h3 a:hover {
+.post-card h3 a:hover,
+.post-title:hover {
     text-decoration: underline;
 }
 
-.post-meta {
+.post-title {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.post-meta,
+.meta {
     color: #666;
     font-size: 0.9rem;
 }
 
-.form-container {
-    max-width: 500px;
-    margin: auto;
+
+main > article {
     background: white;
     padding: 30px;
     border-radius: 8px;
 }
 
-.form-container.wide {
-    max-width: 750px;
-}
-
-.form-container h1 {
-    margin-top: 0;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-label {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-input,
-textarea,
-select {
-    width: 100%;
-    padding: 10px;
-
-    border: 1px solid #ccc;
-    border-radius: 5px;
-
-    font: inherit;
-}
-
-textarea {
-    resize: vertical;
-}
-
-form button {
-    margin-top: 15px;
-}
-
-.error {
-    background: #ffe0e0;
-    color: #8a0000;
-
-    padding: 12px;
-    margin-bottom: 20px;
-
-    border-radius: 5px;
-}
-
-.message {
-    background: #e0f2e5;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
-
-.messages {
-    margin-bottom: 20px;
-}
-
-.form-footer {
-    margin-top: 20px;
-}
-
-.single-post {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-}
-
-.single-post h1 {
-    margin-top: 0;
-}
-
-.post-content {
-    margin-top: 25px;
+.body {
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
     line-height: 1.6;
 }
 
-.post-actions {
-    margin-top: 30px;
+.tag {
+    margin-left: 8px;
+    padding: 0 8px;
+    border: 1px solid #245c35;
+    border-radius: 999px;
+    color: #222;
+    text-decoration: none;
+    font-size: 0.8rem;
+}
 
+.actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
+    margin: 10px 0;
 }
 
-.post-actions form {
-    display: inline;
-}
-
-.delete-button {
-    background: #9b2929;
-}
-
-.delete-button:hover {
-    background: #741e1e;
-}
-
-.comments {
+#comments {
     margin-top: 30px;
 }
 
 .comment {
     background: white;
-    padding: 20px;
+    padding: 18px 22px;
     margin-bottom: 15px;
     border-radius: 8px;
 }
 
-.comment-date {
-    color: #777;
-    font-size: 0.85rem;
-    margin-left: 10px;
+
+.pager {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
 }
 
-.search-form {
-    background: white;
-    padding: 25px;
-    margin-bottom: 30px;
-    border-radius: 8px;
-}
-
-.empty {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-}
-
-footer {
-    text-align: center;
-    color: #777;
-    padding: 30px;
-    margin-top: 50px;
-}
 
 @media (max-width: 700px) {
-
     .nav-container {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .nav-links {
-        flex-wrap: wrap;
+    .nav-search input {
+        width: 9rem;
     }
 
     .hero {
@@ -278,80 +356,4 @@ footer {
     main {
         margin-top: 25px;
     }
-
-    
-    .welcome-background {
-    min-height: calc(100vh - 80px);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-image:
-        linear-gradient(
-            rgba(255, 255, 255, 0.82),
-            rgba(255, 255, 255, 0.82)
-        ),
-        url("/static/DSCO1607.JPG");
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-
-.welcome-content {
-    max-width: 650px;
-    padding: 50px;
-    text-align: center;
-}
-
-.welcome-content h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-}
-
-.welcome-content p {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 30px;
-}
-
-.welcome-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.welcome-buttons .button {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-}
-
-.welcome-background {
-    min-height: calc(100vh - 80px);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-image:
-        linear-gradient(
-            rgba(255, 255, 255, 0.75),
-            rgba(255, 255, 255, 0.75)
-        ),
-        url("/static/DSCO1607.JPG");
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.welcome-content {
-    position: relative;
-    z-index: 2;
-}
 }
