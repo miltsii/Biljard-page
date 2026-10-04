@@ -1,143 +1,59 @@
-
 {% extends "layout.html" %}
-
-{% block title %}
-{{ post.title }}
-{% endblock %}
-
+{% block title %}{{ post.title }}{% endblock %}
 {% block content %}
-
-<article class="single-post">
-
-    <h1>
-        {{ post.title }}
-    </h1>
-
-    <p class="post-meta">
-        {{ post.username }}
-
-        {% if post.category %}
-            · {{ post.category }}
-        {% endif %}
-
-        · {{ post.created_at }}
-    </p>
-
-    <div class="post-content">
-        {{ post.content }}
-    </div>
-
-
-    {% if session.get("user_id") == post.user_id %}
-
-        <div class="post-actions">
-
-            <a class="button"
-               href="{{ url_for('edit_post', post_id=post.id) }}">
-                Muokkaa
-            </a>
-
-
-            <form method="POST"
-                  action="{{ url_for('delete_post', post_id=post.id) }}">
-
-                <input type="hidden"
-                       name="csrf_token"
-                       value="{{ csrf_token }}">
-
-                <button class="delete-button"
-                        type="submit">
-                    Poista
-                </button>
-
-            </form>
-
-        </div>
-
-    {% endif %}
-
+<article>
+  <h1>{{ post.title }}</h1>
+  <p class="meta">
+    <a href="{{ url_for('user_page', user_id=post.user_id) }}">{{ post.username }}</a>, {{ post.created_at }}
+    {% for c in categories %}<a class="tag" href="{{ url_for('index', category=c.id) }}">{{ c.name }}</a>{% endfor %}
+  </p>
+  <p class="body">{{ post.body }}</p>
+  {% if current_user_id == post.user_id %}
+  <div class="actions">
+    <a href="{{ url_for('edit_post', post_id=post.id) }}">Muokkaa</a>
+    <form class="inline" action="{{ url_for('delete_post', post_id=post.id) }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="link danger">Poista</button>
+    </form>
+  </div>
+  {% endif %}
 </article>
 
-
-<section class="comments">
-
-    <h2>Kommentit</h2>
-
-
-    {% if comments %}
-
-        {% for comment in comments %}
-
-            <div class="comment">
-
-                <strong>
-                    {{ comment.username }}
-                </strong>
-
-                <span class="comment-date">
-                    {{ comment.created_at }}
-                </span>
-
-                <p>
-                    {{ comment.content }}
-                </p>
-
-            </div>
-
-        {% endfor %}
-
-    {% else %}
-
-        <p>
-            Ei vielä kommentteja.
-        </p>
-
+<section id="comments">
+  <h2>Kommentit ({{ total }})</h2>
+  {% for c in comments %}
+  <div class="comment">
+    <p class="meta"><a href="{{ url_for('user_page', user_id=c.user_id) }}">{{ c.username }}</a>, {{ c.created_at }}</p>
+    <p class="body">{{ c.body }}</p>
+    {% if current_user_id == c.user_id %}
+    <div class="actions">
+      <a href="{{ url_for('edit_comment', comment_id=c.id) }}">Muokkaa</a>
+      <form class="inline" action="{{ url_for('delete_comment', comment_id=c.id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="link danger">Poista</button>
+      </form>
+    </div>
     {% endif %}
+  </div>
+  {% else %}
+  <p class="empty">Ei vielä kommentteja.</p>
+  {% endfor %}
+  {% set endpoint = 'show_post' %}
+  {% set args = {'post_id': post.id} %}
+  {% set anchor = '#comments' %}
+  {% include "_pagination.html" %}
 
-
-    {% if session.get("user_id") %}
-
-        <h3>Lisää kommentti</h3>
-
-        <form method="POST"
-              action="{{ url_for('add_comment', post_id=post.id) }}">
-
-            <input type="hidden"
-                   name="csrf_token"
-                   value="{{ csrf_token }}">
-
-
-            <label for="content">
-                Kommentti
-            </label>
-
-            <textarea
-                id="content"
-                name="content"
-                rows="5"
-                required
-            ></textarea>
-
-
-            <button type="submit">
-                Lähetä kommentti
-            </button>
-
-        </form>
-
-    {% else %}
-
-        <p>
-            <a href="{{ url_for('login') }}">
-                Kirjaudu sisään
-            </a>
-            kommentoidaksesi.
-        </p>
-
-    {% endif %}
-
+  {% if current_user %}
+  {% include "_errors.html" %}
+  <form class="stack" action="{{ url_for('add_comment', post_id=post.id) }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Uusi kommentti <textarea name="body" rows="4" maxlength="1000" required>{{ comment_body }}</textarea></label>
+    <button type="submit">Lähetä kommentti</button>
+  </form>
+  {% else %}
+  <p><a href="{{ url_for('login', next=request.path) }}">Kirjaudu sisään</a> kommentoidaksesi.</p>
+  {% endif %}
 </section>
-
 {% endblock %}
 
 
