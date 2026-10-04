@@ -180,7 +180,7 @@ POST_LIST_SQL = """
 
 @app.route("/")
 def index():
-    categories = query("SELECT * FROM categories ORDER BY name")
+    categories = query("SELECT id, name FROM categories ORDER BY name")
     category_id = request.args.get("category", type=int)
     where, params = "", []
     if category_id is not None:
@@ -272,7 +272,7 @@ def user_page(user_id):
 @app.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():
-    categories = query("SELECT * FROM categories ORDER BY name")
+    categories = query("SELECT id, name FROM categories ORDER BY name")
     if request.method == "GET":
         return render_template("post_form.html", categories=categories, title="", body="",
                                chosen=set(), errors=[], action=url_for("new_post"), heading="Uusi viesti")
@@ -308,7 +308,7 @@ def show_post(post_id):
 def edit_post(post_id):
     post = load_post_or_404(post_id)
     require_owner(post["user_id"])
-    categories = query("SELECT * FROM categories ORDER BY name")
+    categories = query("SELECT id, name FROM categories ORDER BY name")
     action = url_for("edit_post", post_id=post_id)
     if request.method == "GET":
         chosen = {r["category_id"] for r in query(

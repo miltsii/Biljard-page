@@ -2,12 +2,14 @@
 {% extends "layout.html" %}
 
 {% block title %}
-Uusi julkaisu
+{{ heading }}
 {% endblock %}
 
 {% block content %}
+
 <div class="form-container">
-    <h1>Uusi julkaisu</h1>
+
+    <h1>{{ heading }}</h1>
 
     {% if errors %}
         <div class="error">
@@ -17,10 +19,16 @@ Uusi julkaisu
         </div>
     {% endif %}
 
-    <form method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <form method="POST" action="{{ action }}">
 
-        <label for="title">Otsikko</label>
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token }}">
+
+        <label for="title">
+            Otsikko
+        </label>
+
         <input
             type="text"
             id="title"
@@ -30,10 +38,14 @@ Uusi julkaisu
             required
         >
 
-        <label for="body">Teksti</label>
+        <label for="body">
+            Viesti
+        </label>
+
         <textarea
             id="body"
             name="body"
+            rows="10"
             maxlength="5000"
             required
         >{{ body }}</textarea>
@@ -47,14 +59,19 @@ Uusi julkaisu
                         type="checkbox"
                         name="categories"
                         value="{{ category.id }}"
-                        {% if category.id in selected_categories %}checked{% endif %}
+                        {% if category.id in chosen %}checked{% endif %}
                     >
                     {{ category.name }}
                 </label>
             {% endfor %}
         </fieldset>
 
-        <button type="submit">Julkaise</button>
+        <button type="submit">
+            Julkaise
+        </button>
+
     </form>
+
 </div>
+
 {% endblock %}
