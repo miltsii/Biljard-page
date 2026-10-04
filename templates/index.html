@@ -1,4 +1,3 @@
-
 {% extends "layout.html" %}
 
 {% block title %}
@@ -17,7 +16,7 @@ Biljardi - Etusivu
         Tutustu julkaisuihin ja keskustele muiden pelaajien kanssa.
     </p>
 
-    {% if session.get("user_id") %}
+    {% if current_user %}
 
         <a class="button" href="{{ url_for('new_post') }}">
             Tee uusi julkaisu
@@ -38,6 +37,13 @@ Biljardi - Etusivu
 
     <h2>Viimeisimmät julkaisut</h2>
 
+    <p class="filters">
+        <a href="{{ url_for('index') }}" {% if category_id is none %}class="active"{% endif %}>Kaikki</a>
+        {% for c in categories %}
+            <a href="{{ url_for('index', category=c.id) }}" {% if category_id == c.id %}class="active"{% endif %}>{{ c.name }}</a>
+        {% endfor %}
+    </p>
+
     {% if posts %}
 
         <div class="posts">
@@ -53,21 +59,9 @@ Biljardi - Etusivu
                     </h3>
 
                     <p class="post-meta">
-                        {{ post.username }}
-
-                        {% if post.category %}
-                            · {{ post.category }}
-                        {% endif %}
-
+                        <a href="{{ url_for('user_page', user_id=post.user_id) }}">{{ post.username }}</a>
                         · {{ post.created_at }}
-                    </p>
-
-                    <p>
-                        {{ post.content[:250] }}
-
-                        {% if post.content|length > 250 %}
-                            ...
-                        {% endif %}
+                        · {{ post.comment_count }} kommenttia
                     </p>
 
                     <a href="{{ url_for('show_post', post_id=post.id) }}">
@@ -80,6 +74,10 @@ Biljardi - Etusivu
 
         </div>
 
+        {% set endpoint = 'index' %}
+        {% set args = {'category': category_id} if category_id is not none else {} %}
+        {% include "_pagination.html" %}
+
     {% else %}
 
         <div class="empty">
@@ -88,7 +86,7 @@ Biljardi - Etusivu
                 Sivustolla ei ole vielä julkaisuja.
             </p>
 
-            {% if session.get("user_id") %}
+            {% if current_user %}
 
                 <a class="button"
                    href="{{ url_for('new_post') }}">
