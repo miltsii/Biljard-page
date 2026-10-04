@@ -1,0 +1,15 @@
+{% if posts %}
+<ul class="posts">
+  {% for p in posts %}
+  <li>
+    <a class="post-title" href="{{ url_for('show_post', post_id=p.id) }}">{{ p.title }}</a>
+    <span class="meta">
+      <a href="{{ url_for('user_page', user_id=p.user_id) }}">{{ p.username }}</a>,
+      {{ p.created_at }}, {{ p.comment_count }} kommenttia
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty">Ei viestejä.</p>
+{% endif %}
