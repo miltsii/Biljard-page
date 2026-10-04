@@ -1,77 +1,19 @@
-
 {% extends "layout.html" %}
-
-{% block title %}
-{{ heading }}
-{% endblock %}
-
+{% block title %}{{ heading }}{% endblock %}
 {% block content %}
-
-<div class="form-container">
-
-    <h1>{{ heading }}</h1>
-
-    {% if errors %}
-        <div class="error">
-            {% for error in errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <form method="POST" action="{{ action }}">
-
-        <input type="hidden"
-               name="csrf_token"
-               value="{{ csrf_token }}">
-
-        <label for="title">
-            Otsikko
-        </label>
-
-        <input
-            type="text"
-            id="title"
-            name="title"
-            value="{{ title }}"
-            maxlength="100"
-            required
-        >
-
-        <label for="body">
-            Viesti
-        </label>
-
-        <textarea
-            id="body"
-            name="body"
-            rows="10"
-            maxlength="5000"
-            required
-        >{{ body }}</textarea>
-
-        <fieldset>
-            <legend>Aihealueet</legend>
-
-            {% for category in categories %}
-                <label>
-                    <input
-                        type="checkbox"
-                        name="categories"
-                        value="{{ category.id }}"
-                        {% if category.id in chosen %}checked{% endif %}
-                    >
-                    {{ category.name }}
-                </label>
-            {% endfor %}
-        </fieldset>
-
-        <button type="submit">
-            Julkaise
-        </button>
-
-    </form>
-
-</div>
-
+<h1>{{ heading }}</h1>
+{% include "_errors.html" %}
+<form class="stack" action="{{ action }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>Otsikko <input name="title" value="{{ title }}" maxlength="100" required></label>
+  <label>Sisältö <textarea name="body" rows="8" maxlength="5000" required>{{ body }}</textarea></label>
+  <fieldset>
+    <legend>Aihealueet</legend>
+    {% for c in categories %}
+      <label class="check"><input type="checkbox" name="categories" value="{{ c.id }}"
+        {% if c.id in chosen %}checked{% endif %}> {{ c.name }}</label>
+    {% endfor %}
+  </fieldset>
+  <button type="submit">Tallenna</button>
+</form>
 {% endblock %}
