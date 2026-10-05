@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}Haku{% endblock %}
+{% block content %}
+<h1>Haku</h1>
+
+{% if term %}
+  <p>Hakusana: <strong>{{ term }}</strong></p>
+
+  {% include "_drill_list.html" %}
+
+  {% if page_count > 1 %}
+  <p>
+    {% if page > 1 %}
+      <a href="{{ url_for('search', q=term, page=page - 1) }}">Edellinen</a>
+    {% endif %}
+    Sivu {{ page }} / {{ page_count }}
+    {% if page < page_count %}
+      <a href="{{ url_for('search', q=term, page=page + 1) }}">Seuraava</a>
+    {% endif %}
+  </p>
+  {% endif %}
+{% else %}
+  <p>Kirjoita hakusana yläpalkin hakukenttään.</p>
+{% endif %}
+{% endblock %}
