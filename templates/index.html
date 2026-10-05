@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Biljardiharjoitukset</h1>
+<p>Jaa harjoituksia, kokeile muiden harjoituksia ja kirjaa tuloksesi.</p>
+
+<p>
+  Luokat:
+  <a href="{{ url_for('index') }}">Kaikki</a>
+  {% for category in categories %}
+    | <a href="{{ url_for('index', category=category.id) }}">{{ category.name }}</a>
+  {% endfor %}
+</p>
+
+{% include "_drill_list.html" %}
+
+{% if page_count > 1 %}
+<p>
+  {% if page > 1 %}
+    <a href="{{ url_for('index', page=page - 1, category=category_id) }}">Edellinen</a>
+  {% endif %}
+  Sivu {{ page }} / {{ page_count }}
+  {% if page < page_count %}
+    <a href="{{ url_for('index', page=page + 1, category=category_id) }}">Seuraava</a>
+  {% endif %}
+</p>
+{% endif %}
+{% endblock %}
