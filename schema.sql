@@ -12,32 +12,34 @@ CREATE TABLE IF NOT EXISTS categories (
     name TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE IF NOT EXISTS drills (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    body TEXT NOT NULL,
+    description TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS post_categories (
-    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS drill_categories (
+    drill_id INTEGER NOT NULL REFERENCES drills(id) ON DELETE CASCADE,
     category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-    PRIMARY KEY (post_id, category_id)
+    PRIMARY KEY (drill_id, category_id)
 );
 
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE IF NOT EXISTS attempts (
     id INTEGER PRIMARY KEY,
-    post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    drill_id INTEGER NOT NULL REFERENCES drills(id) ON DELETE CASCADE,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    body TEXT NOT NULL,
+    score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 10),
+    note TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_posts_user ON posts(user_id);
-CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id);
-CREATE INDEX IF NOT EXISTS idx_comments_user ON comments(user_id);
-CREATE INDEX IF NOT EXISTS idx_post_categories_cat ON post_categories(category_id);
+CREATE INDEX IF NOT EXISTS idx_drills_user ON drills(user_id);
+CREATE INDEX IF NOT EXISTS idx_attempts_drill ON attempts(drill_id);
+CREATE INDEX IF NOT EXISTS idx_attempts_user ON attempts(user_id);
+CREATE INDEX IF NOT EXISTS idx_drill_categories_category ON drill_categories(category_id);
 
 INSERT OR IGNORE INTO categories (name) VALUES
-    ('Pool'), ('Snooker'), ('Carom'), ('Equipment'), ('Tournaments'), ('General');
+    ('Potut'), ('Positiopeli'), ('Safety-pelaaminen'),
+    ('Aloituslyönnit'), ('Pallonhallinta'), ('Kimmotukset');
