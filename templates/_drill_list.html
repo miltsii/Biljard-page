@@ -1,0 +1,15 @@
+{% if drills %}
+<ul>
+  {% for drill in drills %}
+  <li>
+    <a href="{{ url_for('show_drill', drill_id=drill.id) }}">{{ drill.title }}</a><br>
+    <span class="meta">
+      <a href="{{ url_for('user_page', user_id=drill.user_id) }}">{{ drill.username }}</a>,
+      {{ drill.created_at }}, {{ drill.attempt_count }} tulosta
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Ei harjoituksia.</p>
+{% endif %}
