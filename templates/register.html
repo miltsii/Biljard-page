@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}Rekisteröidy{% endblock %}
+{% block content %}
+<h1>Rekisteröidy</h1>
+
+{% include "_errors.html" %}
+
+<form action="{{ url_for('register') }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <label for="username">Käyttäjätunnus (3–20 merkkiä: kirjaimet, numerot ja alaviiva)</label>
+  <input type="text" id="username" name="username" value="{{ username }}" maxlength="20" required>
+
+  <label for="password">Salasana (vähintään 8 merkkiä)</label>
+  <input type="password" id="password" name="password" maxlength="100" required>
+
+  <label for="password2">Salasana uudelleen</label>
+  <input type="password" id="password2" name="password2" maxlength="100" required>
+
+  <button type="submit">Luo tunnus</button>
+</form>
+{% endblock %}
