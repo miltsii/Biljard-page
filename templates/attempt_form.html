@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block title %}Muokkaa tulosta{% endblock %}
+{% block content %}
+<h1>Muokkaa tulosta</h1>
+
+{% include "_errors.html" %}
+
+<form action="" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <label for="score">Pisteet (0–10)</label>
+  <input type="number" id="score" name="score" min="0" max="10" value="{{ score }}" required>
+
+  <label for="note">Muistiinpano</label>
+  <textarea id="note" name="note" rows="3" maxlength="500">{{ note }}</textarea>
+
+  <button type="submit">Tallenna</button>
+</form>
+{% endblock %}
