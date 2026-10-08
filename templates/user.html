@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}{{ user.username }}{% endblock %}
+{% block content %}
+<h1>{{ user.username }}</h1>
+
+<p>Liittynyt {{ user.created_at }}</p>
+<ul>
+  <li>Harjoituksia: {{ stats.drill_count }}</li>
+  <li>Tuloksia: {{ stats.attempt_count }}</li>
+  {% if stats.average_score is not none %}
+    <li>Tulosten keskiarvo: {{ stats.average_score|round(1) }} / 10</li>
+  {% endif %}
+</ul>
+
+<h2>Harjoitukset</h2>
+
+{% include "_drill_list.html" %}
+
+{% if page_count > 1 %}
+<p>
+  {% if page > 1 %}
+    <a href="{{ url_for('user_page', user_id=user.id, page=page - 1) }}">Edellinen</a>
+  {% endif %}
+  Sivu {{ page }} / {{ page_count }}
+  {% if page < page_count %}
+    <a href="{{ url_for('user_page', user_id=user.id, page=page + 1) }}">Seuraava</a>
+  {% endif %}
+</p>
+{% endif %}
+{% endblock %}
