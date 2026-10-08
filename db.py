@@ -5,7 +5,6 @@ import config
 
 
 def get_connection():
-    """Open a new database connection."""
     connection = sqlite3.connect(config.DATABASE)
     connection.execute("PRAGMA foreign_keys = ON")
     connection.row_factory = sqlite3.Row
@@ -13,7 +12,6 @@ def get_connection():
 
 
 def query(sql, params=()):
-    """Run a SELECT and return all rows."""
     connection = get_connection()
     try:
         return connection.execute(sql, params).fetchall()
@@ -22,7 +20,6 @@ def query(sql, params=()):
 
 
 def execute(sql, params=()):
-    """Run INSERT, UPDATE or DELETE and return the id of the last inserted row."""
     connection = get_connection()
     try:
         result = connection.execute(sql, params)
@@ -33,7 +30,6 @@ def execute(sql, params=()):
 
 
 def execute_many(sql, params_list):
-    """Run the same statement for each parameter tuple in one transaction."""
     connection = get_connection()
     try:
         connection.executemany(sql, params_list)
