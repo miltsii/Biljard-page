@@ -7,7 +7,6 @@ LIST_SQL = """SELECT d.id, d.title, d.created_at, u.id AS user_id, u.username,
               FROM drills d JOIN users u ON u.id = d.user_id """
 PAGE_SQL = " ORDER BY d.id DESC LIMIT ? OFFSET ?"
 
-
 CATEGORY_FILTER = """WHERE ? IS NULL OR EXISTS (SELECT 1 FROM drill_categories dc
                      WHERE dc.drill_id = d.id AND dc.category_id = ?)"""
 SEARCH_FILTER = "WHERE d.title LIKE ? ESCAPE '\\' OR d.description LIKE ? ESCAPE '\\'"
@@ -23,13 +22,13 @@ def like_pattern(term):
 
 
 def get_categories():
-    return db.query("SELECT id, name FROM categories ORDER BY name")
+    return db.query("SELECT id, name FROM categories ORDER BY id")
 
 
 def get_drill_categories(drill_id):
     sql = """SELECT c.id, c.name FROM categories c
              JOIN drill_categories dc ON dc.category_id = c.id
-             WHERE dc.drill_id = ? ORDER BY c.name"""
+             WHERE dc.drill_id = ? ORDER BY c.id"""
     return db.query(sql, [drill_id])
 
 
@@ -86,7 +85,6 @@ def search_drills(term, page):
 
 
 def count_user_drills(user_id):
-    sql = "SELECT COUNT(*) FROM drills WHERE user_id = ?"
     return db.query(sql, [user_id])[0][0]
 
 
