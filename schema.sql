@@ -41,5 +41,5 @@ CREATE INDEX IF NOT EXISTS idx_attempts_user ON attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_drill_categories_category ON drill_categories(category_id);
 
 INSERT OR IGNORE INTO categories (name) VALUES
-    ('Potut'), ('Positiopeli'), ('Safety-pelaaminen'),
-    ('Aloituslyönnit'), ('Pallonhallinta'), ('Kimmotukset');
+    ('Pillipallot'), ('Vallipallot'), ('Safety- ja maskipelaaminen'),
+    ('Ala- ja yläkierre ja stopparit'), ('Sivukierteet'), ('Muut');
