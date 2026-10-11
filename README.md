@@ -8,7 +8,7 @@ Sovellus on Helsingin yliopiston Tietokannat ja web-ohjelmointi -kurssin harjoit
 
 - Käyttäjä voi luoda tunnuksen ja kirjautua sisään ja ulos.
 - Käyttäjä voi lisätä, muokata ja poistaa omia harjoituksiaan.
-- Harjoitukselle valitaan yksi tai useampi luokka, esimerkiksi Potut tai Positiopeli. Luokat ovat tietokannassa.
+- Harjoitukselle valitaan yksi tai useampi luokka, esimerkiksi Pillipallot tai Vallipallot. Luokat ovat tietokannassa.
 - Käyttäjä voi kirjata minkä tahansa harjoituksen tuloksen (pisteet 0–10 ja halutessaan muistiinpano). Oman tuloksen voi muokata ja poistaa. Harjoituksen sivulla näkyvät tulokset ja niiden keskiarvo.
 - Etusivulla näkyvät kaikki harjoitukset, ja ne voi rajata luokan mukaan.
 - Harjoituksia voi hakea hakusanalla otsikosta ja kuvauksesta.
@@ -21,23 +21,18 @@ Tarvitset Pythonin (versio 3.10 tai uudempi).
 
 Hae koodi ja siirry kansioon:
 
-
 git clone https://github.com/miltsii/Biljard-page.git
 cd Biljard-page
-
 
 Luo virtuaaliympäristö ja asenna Flask.
 
 Linux ja macOS:
 
-
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-
 Windows (PowerShell):
-
 
 python -m venv venv
 venv\Scripts\activate
@@ -45,9 +40,12 @@ pip install -r requirements.txt
 
 Luo tietokanta. Komento käyttää tiedostoa `schema.sql`. Windowsissa kirjoita `python` komennon `python3` tilalle.
 
+
 python3 init_db.py
 
+
 Käynnistä sovellus:
+
 
 flask run
 
@@ -90,10 +88,8 @@ Sovellus toimii osoitteessa http://127.0.0.1:5000.
 
 Tiedosto `seed.py` lisää tietokantaan 1 000 käyttäjää, 100 000 harjoitusta ja miljoona tulosta. Testikäyttäjien tunnukset ovat `user1`, `user2` jne. ja salasana on `testitesti`.
 
-
 python3 init_db.py
 python3 seed.py
-
 
 Sivut hakevat tiedot sivu kerrallaan (`LIMIT` ja `OFFSET`), joten kaikkia rivejä ei haeta kerralla. Viiteavainsarakkeille on tehty indeksit (esimerkiksi `attempts.drill_id`).
 
