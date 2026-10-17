@@ -1,6 +1,7 @@
 
-import db
 import config
+import db
+
 
 def add_attempt(drill_id, user_id, score, note):
     sql = "INSERT INTO attempts (drill_id, user_id, score, note) VALUES (?, ?, ?, ?)"

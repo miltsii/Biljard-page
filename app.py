@@ -127,7 +127,6 @@ def validate_registration(username, password, password_again):
     return errors
 
 
-
 @app.route("/")
 def index():
     category_id = request.args.get("category", type=int)
@@ -200,6 +199,7 @@ def user_page(user_id):
                            page=page, page_count=page_count)
 
 
+# ---------- Drills ----------
 
 @app.route("/drill/new", methods=["GET", "POST"])
 def new_drill():
@@ -252,6 +252,7 @@ def edit_drill(drill_id):
 
 @app.route("/drill/<int:drill_id>/delete", methods=["POST"])
 def delete_drill(drill_id):
+    """Delete a drill (owner only)."""
     require_login()
     require_owner(load_drill(drill_id)["user_id"])
     drills.remove_drill(drill_id)
@@ -262,6 +263,7 @@ def delete_drill(drill_id):
 
 @app.route("/drill/<int:drill_id>/attempt", methods=["POST"])
 def add_attempt(drill_id):
+    """Add an attempt to a drill."""
     require_login()
     load_drill(drill_id)
     score, note, errors = validate_attempt(request.form)
@@ -275,6 +277,7 @@ def add_attempt(drill_id):
 
 @app.route("/attempt/<int:attempt_id>/edit", methods=["GET", "POST"])
 def edit_attempt(attempt_id):
+    """Edit an attempt (owner only)."""
     require_login()
     attempt = load_attempt(attempt_id)
     require_owner(attempt["user_id"])
@@ -293,6 +296,7 @@ def edit_attempt(attempt_id):
 
 @app.route("/attempt/<int:attempt_id>/delete", methods=["POST"])
 def delete_attempt(attempt_id):
+    """Delete an attempt (owner only)."""
     require_login()
     attempt = load_attempt(attempt_id)
     require_owner(attempt["user_id"])
