@@ -2,7 +2,6 @@
 
 Biljardiharjoitukset on web-sovellus, johon käyttäjät voivat lisätä biljardiharjoituksia ja kirjata niille tuloksia. Harjoitus voi olla esimerkiksi "10 potin sarja", ja kuvauksessa kerrotaan, miten harjoitus tehdään ja miten pisteet lasketaan. Toiset käyttäjät voivat tehdä harjoituksen ja kirjata oman tuloksensa.
 
-Sovellus on Helsingin yliopiston Tietokannat ja web-ohjelmointi -kurssin harjoitustyö. Se on tehty Pythonilla ja Flaskilla, ja tiedot tallennetaan SQLite-tietokantaan.
 
 ## Sovelluksen toiminnot
 
@@ -21,33 +20,40 @@ Tarvitset Pythonin (versio 3.10 tai uudempi).
 
 Hae koodi ja siirry kansioon:
 
+```
 git clone https://github.com/miltsii/Biljard-page.git
 cd Biljard-page
+```
 
 Luo virtuaaliympäristö ja asenna Flask.
 
 Linux ja macOS:
 
+```
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
 
 Windows (PowerShell):
 
+```
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
+```
 
 Luo tietokanta. Komento käyttää tiedostoa `schema.sql`. Windowsissa kirjoita `python` komennon `python3` tilalle.
 
-
+```
 python3 init_db.py
-
+```
 
 Käynnistä sovellus:
 
-
+```
 flask run
+```
 
 Sovellus toimii osoitteessa http://127.0.0.1:5000.
 
@@ -88,15 +94,17 @@ Sovellus toimii osoitteessa http://127.0.0.1:5000.
 
 Tiedosto `seed.py` lisää tietokantaan 1 000 käyttäjää, 100 000 harjoitusta ja miljoona tulosta. Testikäyttäjien tunnukset ovat `user1`, `user2` jne. ja salasana on `testitesti`.
 
+```
 python3 init_db.py
 python3 seed.py
+```
 
 Sivut hakevat tiedot sivu kerrallaan (`LIMIT` ja `OFFSET`), joten kaikkia rivejä ei haeta kerralla. Viiteavainsarakkeille on tehty indeksit (esimerkiksi `attempts.drill_id`).
 
 Mittasin sivujen latausajat omalla koneella tällä tietomäärällä. Taulukossa on kahden viimeisen mittauskierroksen pienin ja suurin aika.
 
 | Sivu | Aika |
-
+| --- | --- |
 | Etusivu | 11–12 ms |
 | Etusivu, sivu 5000 | 33–37 ms |
 | Luokan rajaus, sivu 100 | 84–86 ms |
