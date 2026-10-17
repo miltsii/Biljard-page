@@ -88,6 +88,7 @@ def count_user_drills(user_id):
     sql = "SELECT COUNT(*) FROM drills WHERE user_id = ?"
     return db.query(sql, [user_id])[0][0]
 
+
 def get_user_drills(user_id, page):
     sql = LIST_SQL + "WHERE d.user_id = ?" + PAGE_SQL
     return db.query(sql, [user_id, config.PAGE_SIZE, offset_of(page)])
