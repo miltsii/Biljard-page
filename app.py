@@ -1,3 +1,4 @@
+"""Module app."""
 
 
 import re
@@ -23,6 +24,7 @@ TITLE_MAX, DESCRIPTION_MAX, NOTE_MAX, SEARCH_MAX = 100, 5000, 500, 100
 
 @app.before_request
 def check_csrf():
+    """Check csrf."""
     if "csrf_token" not in session:
         session["csrf_token"] = secrets.token_hex(16)
     if request.method == "POST":
@@ -33,31 +35,37 @@ def check_csrf():
 
 @app.context_processor
 def add_template_variables():
+    """Add template variables."""
     return {"csrf_token": session.get("csrf_token", ""),
             "current_user": session.get("username"),
             "current_user_id": session.get("user_id")}
 
 
 def require_login():
+    """Require login."""
     if "user_id" not in session:
         abort(403)
 
 
 def require_owner(owner_id):
+    """Require owner."""
     if owner_id != session.get("user_id"):
         abort(403)
 
 
 def get_page():
+    """Get page."""
     return max(request.args.get("page", 1, type=int), 1)
 
 
 def page_info(total, page):
+    """Page info."""
     page_count = max(ceil(total / config.PAGE_SIZE), 1)
     return min(page, page_count), page_count
 
 
 def load_drill(drill_id):
+    """Load drill."""
     drill = drills.get_drill(drill_id)
     if drill is None:
         abort(404)
@@ -65,6 +73,7 @@ def load_drill(drill_id):
 
 
 def load_attempt(attempt_id):
+    """Load attempt."""
     attempt = attempts.get_attempt(attempt_id)
     if attempt is None:
         abort(404)
@@ -73,16 +82,19 @@ def load_attempt(attempt_id):
 
 @app.errorhandler(403)
 def forbidden(_error):
+    """Forbidden."""
     return render_template("error.html", code=403, message="Pääsy estetty."), 403
 
 
 @app.errorhandler(404)
 def not_found(_error):
+    """Not found."""
     return render_template("error.html", code=404, message="Sivua ei löytynyt."), 404
 
 
 
 def validate_drill(form):
+    """Validate drill."""
     title = form.get("title", "").strip()
     description = form.get("description", "").strip()
     errors = []
@@ -104,6 +116,7 @@ def validate_drill(form):
 
 
 def validate_attempt(form):
+    """Validate attempt."""
     score_text = form.get("score", "").strip()
     note = form.get("note", "").strip()
     errors = []
@@ -118,6 +131,7 @@ def validate_attempt(form):
 
 
 def validate_registration(username, password, password_again):
+    """Validate registration."""
     errors = []
     if not USERNAME_PATTERN.match(username):
         errors.append("Käyttäjätunnus on 3–20 merkkiä (kirjaimet, numerot ja alaviiva).")
@@ -130,6 +144,7 @@ def validate_registration(username, password, password_again):
 
 @app.route("/")
 def index():
+    """Index."""
     category_id = request.args.get("category", type=int)
     page, page_count = page_info(drills.count_drills(category_id), get_page())
     return render_template("index.html", drills=drills.get_drills(page, category_id),
@@ -139,6 +154,7 @@ def index():
 
 @app.route("/search")
 def search():
+    """Search."""
     term = request.args.get("q", "").strip()[:SEARCH_MAX]
     results, page, page_count = [], 1, 1
     if term:
@@ -150,6 +166,7 @@ def search():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    """Register."""
     if request.method == "GET":
         return render_template("register.html", username="", errors=[])
 
@@ -169,6 +186,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """Login."""
     if request.method == "GET":
         return render_template("login.html", error=None)
 
@@ -185,12 +203,14 @@ def login():
 
 @app.route("/logout", methods=["POST"])
 def logout():
+    """Logout."""
     session.clear()
     return redirect(url_for("index"))
 
 
 @app.route("/user/<int:user_id>")
 def user_page(user_id):
+    """User page."""
     user = users.get_user(user_id)
     if user is None:
         abort(404)
@@ -202,6 +222,7 @@ def user_page(user_id):
 
 @app.route("/drill/new", methods=["GET", "POST"])
 def new_drill():
+    """New drill."""
     require_login()
     if request.method == "GET":
         return render_template("drill_form.html", heading="Uusi harjoitus", title="",
@@ -219,6 +240,7 @@ def new_drill():
 
 @app.route("/drill/<int:drill_id>")
 def show_drill(drill_id):
+    """Show drill."""
     drill = load_drill(drill_id)
     page, page_count = page_info(attempts.count_attempts(drill_id), get_page())
     return render_template("drill.html", drill=drill,
@@ -231,6 +253,7 @@ def show_drill(drill_id):
 
 @app.route("/drill/<int:drill_id>/edit", methods=["GET", "POST"])
 def edit_drill(drill_id):
+    """Edit drill."""
     require_login()
     drill = load_drill(drill_id)
     require_owner(drill["user_id"])
@@ -251,6 +274,7 @@ def edit_drill(drill_id):
 
 @app.route("/drill/<int:drill_id>/delete", methods=["POST"])
 def delete_drill(drill_id):
+    """Delete drill."""
     require_login()
     require_owner(load_drill(drill_id)["user_id"])
     drills.remove_drill(drill_id)
@@ -261,6 +285,7 @@ def delete_drill(drill_id):
 
 @app.route("/drill/<int:drill_id>/attempt", methods=["POST"])
 def add_attempt(drill_id):
+    """Add attempt."""
     require_login()
     load_drill(drill_id)
     score, note, errors = validate_attempt(request.form)
@@ -274,6 +299,7 @@ def add_attempt(drill_id):
 
 @app.route("/attempt/<int:attempt_id>/edit", methods=["GET", "POST"])
 def edit_attempt(attempt_id):
+    """Edit attempt."""
     require_login()
     attempt = load_attempt(attempt_id)
     require_owner(attempt["user_id"])
@@ -292,6 +318,7 @@ def edit_attempt(attempt_id):
 
 @app.route("/attempt/<int:attempt_id>/delete", methods=["POST"])
 def delete_attempt(attempt_id):
+    """Delete attempt."""
     require_login()
     attempt = load_attempt(attempt_id)
     require_owner(attempt["user_id"])
