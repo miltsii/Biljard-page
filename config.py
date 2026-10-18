@@ -1,3 +1,4 @@
+"""Module config."""
 
 import os
 

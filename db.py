@@ -1,3 +1,4 @@
+"""Module db."""
 
 import sqlite3
 
@@ -5,6 +6,7 @@ import config
 
 
 def get_connection():
+    """Get connection."""
     connection = sqlite3.connect(config.DATABASE)
     connection.execute("PRAGMA foreign_keys = ON")
     connection.row_factory = sqlite3.Row
@@ -12,6 +14,7 @@ def get_connection():
 
 
 def query(sql, params=()):
+    """Query."""
     connection = get_connection()
     try:
         return connection.execute(sql, params).fetchall()
@@ -20,6 +23,7 @@ def query(sql, params=()):
 
 
 def execute(sql, params=()):
+    """Execute."""
     connection = get_connection()
     try:
         result = connection.execute(sql, params)
@@ -30,6 +34,7 @@ def execute(sql, params=()):
 
 
 def execute_many(sql, params_list):
+    """Execute many."""
     connection = get_connection()
     try:
         connection.executemany(sql, params_list)

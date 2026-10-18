@@ -1,3 +1,4 @@
+"""Module seed."""
 
 import random
 import sqlite3

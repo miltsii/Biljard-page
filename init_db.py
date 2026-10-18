@@ -1,3 +1,4 @@
+"""Module init_db."""
 
 import sqlite3
 
