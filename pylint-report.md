@@ -13,4 +13,4 @@ Tulos:
 Your code has been rated at 10.00/10
 ```
 
-Pylint ei antanut yhtään ilmoitusta, joten selitettäviä ilmoituksia ei ole.
+Pylint ei antanut yhtaan ilmoitusta, joten selitettavia ilmoituksia ei ole.
