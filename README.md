@@ -2,7 +2,6 @@
 
 Biljardiharjoitukset on web-sovellus, johon käyttäjät voivat lisätä biljardiharjoituksia ja kirjata niille tuloksia. Harjoitus voi olla esimerkiksi "10 potin sarja", ja kuvauksessa kerrotaan, miten harjoitus tehdään ja miten pisteet lasketaan. Toiset käyttäjät voivat tehdä harjoituksen ja kirjata oman tuloksensa.
 
-
 ## Sovelluksen toiminnot
 
 - Käyttäjä voi luoda tunnuksen ja kirjautua sisään ja ulos.
